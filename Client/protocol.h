@@ -2,20 +2,23 @@
 #include <cstdint>
 #include <iostream>
 #include <ostream>
-
+#include <vector>
 enum { INIT_VAL = 0};
 
 //Common types
 typedef uint16_t opcode_t;
 typedef uint16_t fsize;
 
+
 // Constants, all sizes are in bytes
+constexpr size_t DEFAULT_BUFLEN = 1024;
 constexpr size_t CLIENT_ID_SIZE = 16;
 constexpr size_t CLIENT_NAME_SIZE = 128; 
 constexpr size_t PUBLIC_KEY_SIZE = 160;
 constexpr size_t SYMMETRIC_KEY_SIZE = 16;
 constexpr size_t ENCRYPTED_DATA = 128;
-
+constexpr size_t CRC_SIZE = 32;
+constexpr size_t DATA_PACKET = 950;
 
 enum EnumRequestCode {
     REQUEST_REG = 1000,      //uuid ignored
@@ -30,13 +33,6 @@ enum EnumResponseCode {
     RESPONSE_UPLOAD = 2002,
     RESPONSE_CRC = 2003,
     RESPONSE_ERROR = 2004
-};
-
-
-enum EnumMessageType {
-    MSG_SYMM_KEY_REQ = 1,
-    MSG_SYMM_KEY_SEND = 2,
-    MSG_FILE = 3,
 };
 
 #pragma pack(push, 1)
@@ -89,14 +85,30 @@ struct EncryptedSymm {
     }
 };
 
+struct CRCKey {
+    char crc[CRC_SIZE];
+    CRCKey() : crc{ INIT_VAL } {}
+    friend std::ostream& operator<<(std::ostream& os, const CRCKey& c)
+    {
+        os << c.crc << std::endl;
+        return os;
+    }
+};
+
+struct FileDataPacket {
+    std::vector<char> dataPacket;
+    FileDataPacket() : dataPacket(DATA_PACKET, INIT_VAL) {}
+};
+
+
+
+
 struct RequestHeader {
     ClientID clientId;
     const opcode_t opcode;
     fsize payloadSize;
     RequestHeader(const opcode_t reqCode) :opcode(reqCode), payloadSize(INIT_VAL) {}
-    //RequestHeader(const opcode_t reqCode) :opcode(reqCode) {}
     RequestHeader(const ClientID& id, const opcode_t reqCode) : clientId(id), opcode(reqCode), payloadSize(INIT_VAL) {}
-    //RequestHeader(const ClientID& id, const opcode_t reqCode) : clientId(id), opcode(reqCode) {}
 };
 
 struct ResponseHeader {
@@ -130,4 +142,13 @@ struct ResponseSymmKey
     ResponseHeader header;
     EncryptedSymm symmKey;
 };
+
+struct RequestFileUpload {
+    RequestHeader header;
+    struct {
+        FileDataPacket dp;
+        CRCKey crc;
+    }payload;
+};
+
 #pragma pack(pop)

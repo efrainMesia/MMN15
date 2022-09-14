@@ -5,6 +5,7 @@ Client::Client()
 	_sock = new Socket();
 	_rsaDecryptor = new RSAPrivateWrapper();
 	_aesDecryptor = nullptr;
+	_fileHandler = new FileHandler();
 }
 
 Client::~Client()
@@ -135,4 +136,37 @@ bool Client::setPublicKey()
 	return true;
 }
 
+bool Client::uploadFile() {
+	std::string fileToTransfer;
+	size_t fileSize;
+	size_t sentDataPacket = INIT_VAL;
+	// Get the file from path transfer.info
+	if (!_fileHandler->open(TRANSFER_INFO)) {
+		std::cerr << "Couldnt open file: " << TRANSFER_INFO << std::endl;
+		return false;
+	}
 
+	// Open file and get file path
+	if (!_fileHandler->readLine(fileToTransfer)) {
+		std::cerr << "[+] ERROR: couldnt read line from file " << TRANSFER_INFO << std::endl;
+		return false;
+	}
+	
+	// Open path and get size of file
+	if (!_fileHandler->open(fileToTransfer)) {
+		std::cerr << "Couldnt open file: " << fileToTransfer << std::endl;
+		return false;
+	}
+	fileSize = _fileHandler->size();
+
+	//read by chunks(use vector)
+	while (sentDataPacket <= fileSize) {
+
+	}
+	// Encrypt data with AES key
+	// Send Data
+
+	// check CRC and continue to next chunk
+
+	return true;
+}

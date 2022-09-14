@@ -4,10 +4,12 @@
 #include "RSAWrapper.h"
 #include "Base64Wrapper.h"
 #include "AESWrapper.h"
+#include "FileHandler.h"
 #include <vector>
 
 constexpr auto CLIENT_INFO = "me.info";
 constexpr auto SERVER_INFO = "server.info";
+constexpr auto TRANSFER_INFO = "transfer.info";
 class Socket;
 
 struct SClient {
@@ -37,6 +39,7 @@ private:
 	SClient _self;
 	RSAPrivateWrapper* _rsaDecryptor;
 	AESWrapper* _aesDecryptor;
+	FileHandler* _fileHandler;
 
 public:
 	Socket* _sock;
@@ -46,5 +49,6 @@ public:
 	bool registerClient(const std::string&);
 	bool registerPublicKey();
 	bool setPublicKey();
+	bool uploadFile();
 
 };
