@@ -67,9 +67,11 @@ bool Client::registerClient(const std::string& username)
 		std::cerr << "failed communicating with server";
 		return false;
 	}
+	
 	//checking the header
 	if (!validateHeader(responseReg.header, RESPONSE_REG))
 		return false;
+	
 	//setting the Client object
 	_self.id = responseReg.payload;
 	_self.username = username;

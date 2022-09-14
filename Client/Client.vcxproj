@@ -133,6 +133,7 @@
     <ClCompile Include="AESWrapper.cpp" />
     <ClCompile Include="Base64Wrapper.cpp" />
     <ClCompile Include="client.cpp" />
+    <ClCompile Include="FileHandler.cpp" />
     <ClCompile Include="RSAWrapper.cpp" />
     <ClCompile Include="socket.cpp" />
     <ClCompile Include="main.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="AESWrapper.h" />
     <ClInclude Include="Base64Wrapper.h" />
     <ClInclude Include="client.h" />
+    <ClInclude Include="FileHandler.h" />
     <ClInclude Include="protocol.h" />
     <ClInclude Include="RSAWrapper.h" />
     <ClInclude Include="socket.h" />
