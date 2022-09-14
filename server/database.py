@@ -15,7 +15,6 @@ class Client:
         self.aes_key = aes_key
 
 class Database():
-
     def __init__(self,filename,logger) -> None:
         self.filename = filename
         self.sql_conn = None

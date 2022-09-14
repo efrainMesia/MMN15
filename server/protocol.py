@@ -1,14 +1,11 @@
-
-
-from calendar import c
 import struct
 from enum import Enum
-from tempfile import TemporaryFile
-from urllib.request import Request
+
 INIT_VAL = 0
 UUID_SIZE = 16
 CODE_SIZE = 2 
-HEADER_SIZE = UUID_SIZE + CODE_SIZE       #Not including the UUID
+PAYLOAD_SIZE = 2
+HEADER_SIZE = UUID_SIZE + CODE_SIZE + PAYLOAD_SIZE    #Not including the UUID
 SYMM_KEY_SIZE = 16
 NAME_SIZE = 127
 FILE_NAME_SIZE = 4      #File name to bits
@@ -20,7 +17,7 @@ CRC_SIZE = 32
 class EnumRequestCode(Enum):
     REQUEST_REG = 1000      #uuid ignored
     REQUEST_PAIRING = 1001  #update keys
-    REQUEST_UPLOAD = 1002   
+    REQUEST_UPLOAD = 1002
     REQUEST_CRC = 1003
 
 class EnumResponseCode(Enum):
@@ -37,6 +34,7 @@ class RequestHeader:
     def __init__(self):
         self.uuid = b'' 
         self.code = INIT_VAL
+        self.payload_size = INIT_VAL
     
     def unpack(self,data):
         """Little Endian unpack Request Header
@@ -47,12 +45,22 @@ class RequestHeader:
         try:
             header_data = data[:HEADER_SIZE]
             self.uuid = struct.unpack(f"<{UUID_SIZE}s", header_data[:UUID_SIZE])[0]
-            self.code = struct.unpack(f"<H",header_data[UUID_SIZE:])[0]
+            self.code,self.payload_size = struct.unpack(f"<HH",header_data[UUID_SIZE:])
             return True
         except Exception as excep:
             print(excep)
             return False
 
+class ResponseHeader:
+    def __init__(self,code) -> None:
+        self.code = code
+        self.payload_size = INIT_VAL    #2 bytes
+    
+    def pack(self):
+        try:
+            return struct.pack("<HH",self.code,self.payload_size)
+        except:
+            return b""
 
 class RegRequest:
     def __init__(self,header) -> None:
@@ -78,18 +86,6 @@ class RegRequest:
             return False
 
 
-class ResponseHeader:
-    def __init__(self,code) -> None:
-        self.code = code
-        self.payload_size = INIT_VAL    #4 bytes
-    
-    def pack(self):
-        try:
-            return struct.pack("<HL",self.code,self.payload_size)
-        except:
-            return b""
-
-
 class RegResponse:
     def __init__(self) -> None:
         self.header = ResponseHeader(EnumResponseCode.RESPONSE_REG.value)
@@ -109,10 +105,9 @@ class RegResponse:
 
 
 class KeyPairingRequest:
-    def __init__(self,header) -> None:
+    def __init__(self, header:RequestHeader) -> None:
         self.header = header
         self.key = b""
-        self.size = KEY_SIZE
     def unpack(self,data):
         """Little Endian unpack Public Key pairing Header
 
@@ -123,8 +118,8 @@ class KeyPairingRequest:
             print("unable to unpack the header request")
         try:
             print("trimming the key pairing array")
-            uuid_key_pair_data = data[HEADER_SIZE:]      #trimming Key Data
-            self.key = struct.unpack(f"<{KEY_SIZE}s",uuid_key_pair_data)[0]
+            key_pair_data = data[HEADER_SIZE:]      #trimming Key Data
+            self.key = struct.unpack(f"<{self.header.payload_size}s",key_pair_data)[0]
             print(self.key)
             return True
         except Exception as excep:

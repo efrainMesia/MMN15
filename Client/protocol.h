@@ -7,7 +7,7 @@ enum { INIT_VAL = 0};
 
 //Common types
 typedef uint16_t opcode_t;
-typedef uint32_t fsize;
+typedef uint16_t fsize;
 
 // Constants, all sizes are in bytes
 constexpr size_t CLIENT_ID_SIZE = 16;
@@ -92,11 +92,11 @@ struct EncryptedSymm {
 struct RequestHeader {
     ClientID clientId;
     const opcode_t opcode;
-    //fsize payloadSize;
-    //RequestHeader(const opcode_t reqCode) :opcode(reqCode), payloadSize(INIT_VAL) {}
-    RequestHeader(const opcode_t reqCode) :opcode(reqCode) {}
-    //RequestHeader(const ClientID& id, const opcode_t reqCode) : clientId(id), opcode(reqCode), payloadSize(INIT_VAL) {}
-    RequestHeader(const ClientID& id, const opcode_t reqCode) : clientId(id), opcode(reqCode) {}
+    fsize payloadSize;
+    RequestHeader(const opcode_t reqCode) :opcode(reqCode), payloadSize(INIT_VAL) {}
+    //RequestHeader(const opcode_t reqCode) :opcode(reqCode) {}
+    RequestHeader(const ClientID& id, const opcode_t reqCode) : clientId(id), opcode(reqCode), payloadSize(INIT_VAL) {}
+    //RequestHeader(const ClientID& id, const opcode_t reqCode) : clientId(id), opcode(reqCode) {}
 };
 
 struct ResponseHeader {

@@ -56,14 +56,10 @@ bool Client::registerClient(const std::string& username)
 			std::cerr << "Invalid username, Username must contains letters and numbers only" << std::endl;
 		}
 	}
-	//TODO: RSA?
-
 
 	// Create request data
-	//requestReg.header.payloadSize = sizeof(requestReg.payload);
 	strcpy_s(reinterpret_cast<char*>(requestReg.payload.name), CLIENT_NAME_SIZE, username.c_str());
-	
-	//TODO: if pkey is added, we should also copy the key here.
+	requestReg.header.payloadSize = username.length();
 
 	//send the data and receive response
  	if (!_sock->sendReceive(reinterpret_cast<char*>(&requestReg), sizeof(requestReg),
@@ -79,7 +75,7 @@ bool Client::registerClient(const std::string& username)
 	_self.username = username;
 	
 	std::cout << _self << std::endl;
-	return false;
+	return true;
 }
 
 
@@ -103,7 +99,7 @@ bool Client::registerPublicKey()
 	for (i = 0; i < sizeof(requestPKey.payload.publicKey); i++) {
 		requestPKey.payload.publicKey[i] = this->_self.pkey[i];
 	}
-
+	requestPKey.header.payloadSize = PUBLIC_KEY_SIZE;
 
 	if (!_sock->sendReceive(reinterpret_cast<char*>(&requestPKey), sizeof(requestPKey),
 		reinterpret_cast<char*>(&responseRegPKey), sizeof(responseRegPKey))) {
