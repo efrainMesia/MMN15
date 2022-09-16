@@ -5,6 +5,7 @@
 #include "Base64Wrapper.h"
 #include "AESWrapper.h"
 #include "FileHandler.h"
+#include <zlib.h>
 #include <vector>
 
 constexpr auto CLIENT_INFO = "me.info";
@@ -15,10 +16,12 @@ class Socket;
 struct SClient {
 	ClientID id;
 	std::string username;
+
 	std::string pkey;
 	bool pkeySet = false;
 	std::string symmKey;
 	bool symmKeySet = false;
+	
 	
 	friend std::ostream& operator<<(std::ostream& os, const SClient& c)
 	{

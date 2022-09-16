@@ -32,6 +32,7 @@ bool Client::validateHeader(const ResponseHeader& header, const EnumResponseCode
 			break;
 		}
 		// TODO: add CRC and uploadFile
+		
 	}
 	if (header.payloadSize != expectedSize) {
 		std::cerr << "Unexpected payload size " << header.payloadSize << ".Expected was " << expectedSize << std::endl;
@@ -142,7 +143,7 @@ bool Client::uploadFile() {
 	size_t sentDataPacket = INIT_VAL;
 	// Get the file from path transfer.info
 	if (!_fileHandler->open(TRANSFER_INFO)) {
-		std::cerr << "Couldnt open file: " << TRANSFER_INFO << std::endl;
+		std::cerr << "[+] ERROR: Couldnt open file: " << TRANSFER_INFO << std::endl;
 		return false;
 	}
 

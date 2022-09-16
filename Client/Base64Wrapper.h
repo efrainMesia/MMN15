@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <base64.h>
+#include <cryptopp/base64.h>
 
 
 class Base64Wrapper
