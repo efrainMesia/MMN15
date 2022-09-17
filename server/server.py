@@ -22,7 +22,8 @@ class Server():
         self.database = database.Database(DATABASE,None)
         self.handle_request = {
             protocol.EnumRequestCode.REQUEST_REG.value:self.handle_reg_request,
-            protocol.EnumRequestCode.REQUEST_PAIRING.value:self.handle_public_key_request
+            protocol.EnumRequestCode.REQUEST_PAIRING.value:self.handle_public_key_request,
+            protocol.EnumRequestCode.REQUEST_UPLOAD.value:self.handle_file_upload_request
         }
 
     def accept(self,sock, mask):
@@ -145,4 +146,19 @@ class Server():
         response.header.payload_size = 128
         return self.write(conn,response.pack())
         
+
+
+    def handle_file_upload_request(self,conn,data,header):
+        """ Responds the file handler """
+        request = protocol.FileUploadRequest(header)
+        response = protocol.FileUploadResponse()
+        if not request.unpack(data):
+            print("File upload request, failed to parse")
+        
+
+
+
+
+        return True
+
 

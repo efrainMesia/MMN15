@@ -8,10 +8,20 @@ PAYLOAD_SIZE = 2
 HEADER_SIZE = UUID_SIZE + CODE_SIZE + PAYLOAD_SIZE    #Not including the UUID
 SYMM_KEY_SIZE = 16
 NAME_SIZE = 127
-FILE_NAME_SIZE = 4      #File name to bits
-FILE_LENGTH_SIZE = 4   #Length of filename to bits
+FILE_NAME_MAX_SIZE = 256      #File name to bits
+FILE_LENGTH_SIZE = 1   #Length of filename in bytes
+FILE_MAX_DATA_PACKET = 20
+FILE_PACKET_SIZE = 1
 KEY_SIZE = 160     #Convert 160 bytes to bits
-CRC_SIZE = 32
+CRC_SIZE = 4
+
+FORMAT_REQUEST_HEADER = f"<{UUID_SIZE}sHH"
+FORMAT_REG_REQUEST = f"<{NAME_SIZE}s"
+#TODO: ADD format for key_pair
+
+#B- FileName length , 256s - filename , B-datapacket length, 20s-DataPacket, I-crc
+FORMAT_FILE_UPLOAD_REQUEST = f"<B{FILE_NAME_MAX_SIZE}sB{FILE_MAX_DATA_PACKET}sI"
+
 
 
 class EnumRequestCode(Enum):
@@ -44,8 +54,7 @@ class RequestHeader:
         """
         try:
             header_data = data[:HEADER_SIZE]
-            self.uuid = struct.unpack(f"<{UUID_SIZE}s", header_data[:UUID_SIZE])[0]
-            self.code,self.payload_size = struct.unpack(f"<HH",header_data[UUID_SIZE:])
+            self.uuid,self.code,self.payload_size = struct.unpack(FORMAT_REQUEST_HEADER, header_data)
             return True
         except Exception as excep:
             print(excep)
@@ -79,7 +88,7 @@ class RegRequest:
         try:
             print("trimming the byte array")
             reg_request_data = data[HEADER_SIZE:HEADER_SIZE + NAME_SIZE]
-            self.name = str(struct.unpack(f"<{NAME_SIZE}s", reg_request_data)[0].partition(b'\0')[0].decode('utf-8'))
+            self.name = str(struct.unpack(FORMAT_REG_REQUEST, reg_request_data)[0].partition(b'\0')[0].decode('utf-8'))
             return True
         except Exception as excep:
             self.name =b""
@@ -146,15 +155,15 @@ class KeyPairingResponse:
 
 class FileUploadRequest:
     #TODO: CHECK THIS CLASS!!!
-    def __init__(self) -> None:
-        self.header = RequestHeader()
+    def __init__(self,header:RequestHeader) -> None:
+        self.header = header
         self.filename_length = INIT_VAL
-        self.file_size = INIT_VAL
         self.filename = b""
-        self.file = b""
+        self.size_data_packet = INIT_VAL
+        self.data_packet = b""
+        self.crc_key = b""
 
-
-    def unpack(self,conn,data):
+    def unpack(self,data):
         """Little Endian unpack request header and File data
 
         Args:
@@ -162,27 +171,12 @@ class FileUploadRequest:
             data (bin str): data packet to unpack
         """
         packet_size = len(data)
-        
-        if not self.header.unpack(data):
-            return False
         try:
-            file_metadata = data[HEADER_SIZE:]
-            self.filename_length,self.file_size = struct.unpack("<LL",file_metadata[:FILE_NAME_SIZE + FILE_LENGTH_SIZE])
-            filename_data_unpacked = file_metadata[FILE_NAME_SIZE + FILE_LENGTH_SIZE:self.filename_length]
-            self.filename = struct.unpack(f"<{self.filename_length}s",filename_data_unpacked)
-            
-            read_bytes = packet_size - HEADER_SIZE - FILE_NAME_SIZE - FILE_LENGTH_SIZE
-            if read_bytes > self.file_size:
-                read_bytes = self.file_size
-            file_data = file_metadata[self.filename_length:]
-            self.file = struct.unpack(f"<{read_bytes}s",file_metadata[self.filename_length:read_bytes])[0]
-            while read_bytes < self.file_size:
-                data = conn.recv(packet_size)
-                data_size = len(data)
-                if (self.file_size - read_bytes) < data_size:
-                    data_size = self.file_size - read_bytes
-                self.file += struct.unpack(f"{data_size}s",data[:data_size])[0]
-                read_bytes += data_size
+            print(f"****** Unpacking file request ******")
+            print(data)
+            payload = data[HEADER_SIZE:]
+            self.filename_length,self.filename,self.size_data_packet,self.data_packet,self.crc_key = struct.unpack(FORMAT_FILE_UPLOAD_REQUEST,payload)
+            self.filename=str(self.filename.partition(b'\0')[0].decode('utf-8'))
             return True
         except:
             print("Exception in FileUploadRequest")
