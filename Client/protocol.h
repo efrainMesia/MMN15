@@ -1,8 +1,8 @@
 #pragma once
 #include <cstdint>
-#include <iostream>
 #include <ostream>
 #include <vector>
+#include "utils.h"
 enum { INIT_VAL = 0};
 
 //Common types
@@ -18,8 +18,8 @@ constexpr size_t PUBLIC_KEY_SIZE = 160;
 constexpr size_t SYMMETRIC_KEY_SIZE = 16;
 constexpr size_t ENCRYPTED_DATA = 128;
 constexpr size_t CRC_SIZE = 32;
-constexpr size_t DATA_PACKET = 950;
-
+constexpr size_t DATA_PACKET = 20;
+constexpr size_t FILE_METADATA = 256;
 enum EnumRequestCode {
     REQUEST_REG = 1000,      //uuid ignored
     REQUEST_PAIRING = 1001,  //update keys
@@ -86,7 +86,7 @@ struct EncryptedSymm {
 };
 
 struct CRCKey {
-    char crc[CRC_SIZE];
+    uint32_t crc;
     CRCKey() : crc{ INIT_VAL } {}
     friend std::ostream& operator<<(std::ostream& os, const CRCKey& c)
     {
@@ -96,10 +96,16 @@ struct CRCKey {
 };
 
 struct FileDataPacket {
-    std::vector<char> dataPacket;
-    FileDataPacket() : dataPacket(DATA_PACKET, INIT_VAL) {}
+    uint8_t dataPacketSize;
+    char dataPacket[DATA_PACKET];
+    FileDataPacket() : dataPacketSize(INIT_VAL),dataPacket{ INIT_VAL } {}
 };
 
+struct FileMetadata {
+    uint8_t fileNameLength;
+    char filename[FILE_METADATA];
+    FileMetadata() : fileNameLength(INIT_VAL), filename{ INIT_VAL } {}
+};
 
 
 
@@ -146,9 +152,15 @@ struct ResponseSymmKey
 struct RequestFileUpload {
     RequestHeader header;
     struct {
+        FileMetadata fm;
         FileDataPacket dp;
         CRCKey crc;
     }payload;
+    RequestFileUpload(const ClientID& id) : header(id, REQUEST_UPLOAD), payload(){}
+};
+
+struct ResponseFileUpload {
+    ResponseHeader header;
 };
 
 #pragma pack(pop)

@@ -61,13 +61,13 @@ void FileHandler::close()
 /**
  * Read bytes from fs to dest.
  */
-bool FileHandler::read_by_chunks(std::vector<char>* dest, const size_t bytes) const
+bool FileHandler::readByChunks(char* dest, const size_t bytes)
 {
 	if (_fileStream == nullptr || !_open || dest == nullptr || bytes == 0)
 		return false;
 	try
 	{
-		_fileStream->read(dest->data(), dest->size());
+		_fileStream->read(dest, bytes);
 		return true;
 	}
 	catch (...)

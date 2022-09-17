@@ -134,10 +134,10 @@
     <ClCompile Include="Base64Wrapper.cpp" />
     <ClCompile Include="client.cpp" />
     <ClCompile Include="FileHandler.cpp" />
-    <ClCompile Include="protocol.cpp" />
     <ClCompile Include="RSAWrapper.cpp" />
     <ClCompile Include="socket.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AESWrapper.h" />

@@ -1,6 +1,6 @@
+#pragma once
 #define WIN32_LEAN_AND_MEAN
 
-#include <iostream>
 #include "client.h"
 
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
@@ -18,5 +18,7 @@ int main() {
 	newClient->registerClient("Testingthismdf");
 	newClient->_sock->connect(ipAddress, DEFAULT_PORT);
 	newClient->registerPublicKey();
+	newClient->_sock->connect(ipAddress, DEFAULT_PORT);
+	newClient->uploadFile();
 	return 0;
 }

@@ -5,8 +5,7 @@
 #include "Base64Wrapper.h"
 #include "AESWrapper.h"
 #include "FileHandler.h"
-#include <zlib.h>
-#include <vector>
+
 
 constexpr auto CLIENT_INFO = "me.info";
 constexpr auto SERVER_INFO = "server.info";

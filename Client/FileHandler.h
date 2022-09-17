@@ -22,7 +22,7 @@ public:
     // file wrapper functions
     bool open(const std::string& filepath, bool write = false);
     void close();
-    bool read_by_chunks(std::vector<char>* dest, const size_t bytes) const;
+    bool readByChunks(char* dest, const size_t bytes);
     bool write(const uint8_t* const src, const size_t bytes) const;
     bool readLine(std::string& line) const;
     bool writeLine(const std::string& line) const;

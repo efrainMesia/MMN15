@@ -16,10 +16,10 @@ Client::~Client()
 bool Client::validateHeader(const ResponseHeader& header, const EnumResponseCode expected)
 {
 	if (header.opcode == RESPONSE_ERROR) {
-		std::cerr << "Got error from opcode" << std::endl;
+		LOG_ERROR("Got error from opcode");
 	}
 	if (header.opcode != expected) {
-		std::cerr << "Unexpected opcode" << std::endl;
+		LOG_ERROR("Unexpected opcode");
 	}
 	fsize expectedSize = INIT_VAL;
 	switch (header.opcode) {
@@ -48,14 +48,14 @@ bool Client::registerClient(const std::string& username)
 
 	// Check length of username
 	if (username.length() >= CLIENT_NAME_SIZE) {
-		std::cerr << "Invalid username length" << std::endl;
+		LOG_ERROR("Invalid username length");
 		return false;
 	}
 
 	//check if its only alphanumeric
 	for (auto ch : username) {
 		if (!std::isalnum(ch)) {
-			std::cerr << "Invalid username, Username must contains letters and numbers only" << std::endl;
+			LOG_ERROR("Invalid username, Username must contains letters and numbers only");
 		}
 	}
 
@@ -66,7 +66,7 @@ bool Client::registerClient(const std::string& username)
 	//send the data and receive response
  	if (!_sock->sendReceive(reinterpret_cast<char*>(&requestReg), sizeof(requestReg),
 		reinterpret_cast<char*>(&responseReg), sizeof(responseReg))) {
-		std::cerr << "failed communicating with server";
+		LOG_ERROR("failed communicating with server");
 		return false;
 	}
 	
@@ -107,7 +107,7 @@ bool Client::registerPublicKey()
 
 	if (!_sock->sendReceive(reinterpret_cast<char*>(&requestPKey), sizeof(requestPKey),
 		reinterpret_cast<char*>(&responseRegPKey), sizeof(responseRegPKey))) {
-		std::cerr << "failed communicating with server";
+		LOG_ERROR("failed communicating with server");
 		return false;
 	}
 
@@ -128,7 +128,7 @@ bool Client::setPublicKey()
 	
 	if (pubkey.size() != PUBLIC_KEY_SIZE)
 	{
-		std::cerr << "Invalid public key length!" << std::endl;
+		LOG_ERROR("Invalid public key length!");
 		return false;
 	}
 	this->_self.pkey = pubkey;
@@ -138,9 +138,16 @@ bool Client::setPublicKey()
 }
 
 bool Client::uploadFile() {
+	RequestFileUpload fileUpload(_self.id);
+	ResponseFileUpload ResFileUpload;
+	
 	std::string fileToTransfer;
+	std::vector<char> buffer(20,0);
+	std::string encryptedData;
 	size_t fileSize;
 	size_t sentDataPacket = INIT_VAL;
+	
+
 	// Get the file from path transfer.info
 	if (!_fileHandler->open(TRANSFER_INFO)) {
 		std::cerr << "[+] ERROR: Couldnt open file: " << TRANSFER_INFO << std::endl;
@@ -154,15 +161,36 @@ bool Client::uploadFile() {
 	}
 	
 	// Open path and get size of file
-	if (!_fileHandler->open(fileToTransfer)) {
-		std::cerr << "Couldnt open file: " << fileToTransfer << std::endl;
-		return false;
-	}
-	fileSize = _fileHandler->size();
+	std::ifstream fin(fileToTransfer, std::ifstream::binary);
+
+	// Getting File Metadata 
+	std::string base_filename = fileToTransfer.substr(fileToTransfer.find_last_of("/\\") + 1);	
+	strcpy_s(fileUpload.payload.fm.filename, base_filename.c_str());
+	fileUpload.payload.fm.fileNameLength = base_filename.length();
+	size_t fileSize = std::filesystem::file_size(fileToTransfer);
 
 	//read by chunks(use vector)
-	while (sentDataPacket <= fileSize) {
+	while (!fin.eof()){
+		fin.read(buffer.data(), 10);
 
+		//TODO : SIMULATION - PAYLOADSIZE suppose to be the full size of the file
+		fileUpload.header.payloadSize = 10; 
+		//Encrypt Data
+		encryptedData = _aesDecryptor->encrypt(buffer.data(), 10);
+
+		//copy the encrypted data to payload
+		fileUpload.payload.dp.dataPacketSize = encryptedData.length();
+		strcpy_s(fileUpload.payload.dp.dataPacket,encryptedData.c_str());
+
+		//adding crc
+		fileUpload.payload.crc.crc = doCrc(reinterpret_cast<uint8_t*>(fileUpload.payload.dp.dataPacket), 10);
+		
+		//sending data
+		if (!_sock->sendReceive(reinterpret_cast<char*>(&fileUpload), sizeof(fileUpload),
+			reinterpret_cast<char*>(&ResFileUpload), sizeof(ResFileUpload))) {
+			LOG_ERROR("failed communicating with server");
+			return false;
+		}
 	}
 	// Encrypt data with AES key
 	// Send Data

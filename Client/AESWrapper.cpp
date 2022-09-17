@@ -1,8 +1,8 @@
 #include "AESWrapper.h"
 
-#include <modes.h>
-#include <aes.h>
-#include <filters.h>
+#include <cryptopp/modes.h>
+#include <cryptopp/aes.h>
+#include <cryptopp/filters.h>
 
 #include <stdexcept>
 #include <immintrin.h>	// _rdrand32_step
