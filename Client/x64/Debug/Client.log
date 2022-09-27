@@ -1,11 +1,22 @@
-﻿main.obj : error LNK2005: "unsigned int __cdecl doCrc(unsigned char *,unsigned int)" (?doCrc@@YAIPEAEI@Z) already defined in client.obj
+﻿  AESWrapper.cpp
+  client.cpp
+  The contents of <filesystem> are available only with C++17 or later.
+D:\MMN15\Client\client.cpp(64,51): warning C4267: '=': conversion from 'size_t' to 'fsize', possible loss of data
+  crc.cpp
+  FileHandler.cpp
+D:\MMN15\Client\FileHandler.cpp(74,22): warning C4244: 'initializing': conversion from 'std::streamsize' to 'uint32_t', possible loss of data
+  RSAWrapper.cpp
+  main.cpp
+  The contents of <filesystem> are available only with C++17 or later.
+  Generating Code...
 cryptopp-static.lib(cryptlib.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(allocate.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
-cryptopp-static.lib(modes.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
-cryptopp-static.lib(rijndael.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(filters.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(integer.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(algparam.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
+cryptopp-static.lib(modes.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
+cryptopp-static.lib(rijndael.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
+cryptopp-static.lib(files.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(basecode.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(base64.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(queue.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
@@ -19,13 +30,13 @@ cryptopp-static.lib(asn.cpp.obj) : error LNK2038: mismatch detected for 'Runtime
 cryptopp-static.lib(rsa.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(misc.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(fips140.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
+cryptopp-static.lib(mqueue.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(dll.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
+cryptopp-static.lib(nbtheory.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(des.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(cpu.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(rijndael_simd.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(rdtables.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
-cryptopp-static.lib(mqueue.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
-cryptopp-static.lib(nbtheory.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(hrtimer.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(sha_simd.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
 cryptopp-static.lib(pkcspad.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MTd_StaticDebug' in AESWrapper.obj
@@ -85,6 +96,28 @@ msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: int __cdecl std::basic_str
 msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: int __cdecl std::basic_streambuf<char,struct std::char_traits<char> >::snextc(void)" (?snextc@?$basic_streambuf@DU?$char_traits@D@std@@@std@@QEAAHXZ) already defined in FileHandler.obj
 msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: bool __cdecl std::basic_istream<char,struct std::char_traits<char> >::_Ipfx(bool)" (?_Ipfx@?$basic_istream@DU?$char_traits@D@std@@@std@@QEAA_N_N@Z) already defined in FileHandler.obj
 msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: class std::basic_istream<char,struct std::char_traits<char> > & __cdecl std::basic_istream<char,struct std::char_traits<char> >::read(char *,__int64)" (?read@?$basic_istream@DU?$char_traits@D@std@@@std@@QEAAAEAV12@PEAD_J@Z) already defined in FileHandler.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: __int64 __cdecl std::basic_istream<char,struct std::char_traits<char> >::gcount(void)const " (?gcount@?$basic_istream@DU?$char_traits@D@std@@@std@@QEBA_JXZ) already defined in FileHandler.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: bool __cdecl std::codecvt_base::always_noconv(void)const " (?always_noconv@codecvt_base@std@@QEBA_NXZ) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: int __cdecl std::codecvt<char,char,struct _Mbstatet>::in(struct _Mbstatet &,char const *,char const *,char const * &,char *,char *,char * &)const " (?in@?$codecvt@DDU_Mbstatet@@@std@@QEBAHAEAU_Mbstatet@@PEBD1AEAPEBDPEAD3AEAPEAD@Z) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: int __cdecl std::codecvt<char,char,struct _Mbstatet>::out(struct _Mbstatet &,char const *,char const *,char const * &,char *,char *,char * &)const " (?out@?$codecvt@DDU_Mbstatet@@@std@@QEBAHAEAU_Mbstatet@@PEBD1AEAPEBDPEAD3AEAPEAD@Z) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: int __cdecl std::codecvt<char,char,struct _Mbstatet>::unshift(struct _Mbstatet &,char *,char *,char * &)const " (?unshift@?$codecvt@DDU_Mbstatet@@@std@@QEBAHAEAU_Mbstatet@@PEAD1AEAPEAD@Z) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: static unsigned __int64 __cdecl std::codecvt<char,char,struct _Mbstatet>::_Getcat(class std::locale::facet const * *,class std::locale const *)" (?_Getcat@?$codecvt@DDU_Mbstatet@@@std@@SA_KPEAPEBVfacet@locale@2@PEBV42@@Z) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: bool __cdecl std::ios_base::operator!(void)const " (??7ios_base@std@@QEBA_NXZ) already defined in FileHandler.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: bool __cdecl std::ios_base::eof(void)const " (?eof@ios_base@std@@QEBA_NXZ) already defined in FileHandler.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: class std::locale __cdecl std::basic_streambuf<char,struct std::char_traits<char> >::getloc(void)const " (?getloc@?$basic_streambuf@DU?$char_traits@D@std@@@std@@QEBA?AVlocale@2@XZ) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "protected: char * __cdecl std::basic_streambuf<char,struct std::char_traits<char> >::_Gndec(void)" (?_Gndec@?$basic_streambuf@DU?$char_traits@D@std@@@std@@IEAAPEADXZ) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "protected: char * __cdecl std::basic_streambuf<char,struct std::char_traits<char> >::_Gninc(void)" (?_Gninc@?$basic_streambuf@DU?$char_traits@D@std@@@std@@IEAAPEADXZ) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "protected: __int64 __cdecl std::basic_streambuf<char,struct std::char_traits<char> >::_Gnavail(void)const " (?_Gnavail@?$basic_streambuf@DU?$char_traits@D@std@@@std@@IEBA_JXZ) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "protected: void __cdecl std::basic_streambuf<char,struct std::char_traits<char> >::pbump(int)" (?pbump@?$basic_streambuf@DU?$char_traits@D@std@@@std@@IEAAXH@Z) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "protected: __int64 __cdecl std::basic_streambuf<char,struct std::char_traits<char> >::_Pnavail(void)const " (?_Pnavail@?$basic_streambuf@DU?$char_traits@D@std@@@std@@IEBA_JXZ) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "protected: void __cdecl std::basic_streambuf<char,struct std::char_traits<char> >::_Init(void)" (?_Init@?$basic_streambuf@DU?$char_traits@D@std@@@std@@IEAAXXZ) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "protected: void __cdecl std::basic_streambuf<char,struct std::char_traits<char> >::_Init(char * *,char * *,int *,char * *,char * *,int *)" (?_Init@?$basic_streambuf@DU?$char_traits@D@std@@@std@@IEAAXPEAPEAD0PEAH001@Z) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "protected: virtual __int64 __cdecl std::basic_streambuf<char,struct std::char_traits<char> >::xsgetn(char *,__int64)" (?xsgetn@?$basic_streambuf@DU?$char_traits@D@std@@@std@@MEAA_JPEAD_J@Z) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "protected: virtual __int64 __cdecl std::basic_streambuf<char,struct std::char_traits<char> >::xsputn(char const *,__int64)" (?xsputn@?$basic_streambuf@DU?$char_traits@D@std@@@std@@MEAA_JPEBD_J@Z) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: void __cdecl std::basic_ios<char,struct std::char_traits<char> >::clear(int,bool)" (?clear@?$basic_ios@DU?$char_traits@D@std@@@std@@QEAAXH_N@Z) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: class std::basic_ostream<char,struct std::char_traits<char> > & __cdecl std::basic_ostream<char,struct std::char_traits<char> >::write(char const *,__int64)" (?write@?$basic_ostream@DU?$char_traits@D@std@@@std@@QEAAAEAV12@PEBD_J@Z) already defined in FileHandler.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: __cdecl std::basic_istream<char,struct std::char_traits<char> >::basic_istream<char,struct std::char_traits<char> >(class std::basic_streambuf<char,struct std::char_traits<char> > *,bool)" (??0?$basic_istream@DU?$char_traits@D@std@@@std@@QEAA@PEAV?$basic_streambuf@DU?$char_traits@D@std@@@1@_N@Z) already defined in AESWrapper.obj
+msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: virtual __cdecl std::basic_istream<char,struct std::char_traits<char> >::~basic_istream<char,struct std::char_traits<char> >(void)" (??1?$basic_istream@DU?$char_traits@D@std@@@std@@UEAA@XZ) already defined in AESWrapper.obj
 msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: struct _Cvtvec __cdecl std::_Locinfo::_Getcvt(void)const " (?_Getcvt@_Locinfo@std@@QEBA?AU_Cvtvec@@XZ) already defined in AESWrapper.obj
 msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: char const * __cdecl std::_Locinfo::_Getdays(void)const " (?_Getdays@_Locinfo@std@@QEBAPEBDXZ) already defined in libcpmtd.lib(wlocale.obj)
 msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: char const * __cdecl std::_Locinfo::_Getmonths(void)const " (?_Getmonths@_Locinfo@std@@QEBAPEBDXZ) already defined in libcpmtd.lib(wlocale.obj)
@@ -92,128 +125,146 @@ msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: unsigned short const * __c
 msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: unsigned short const * __cdecl std::_Locinfo::_W_Getmonths(void)const " (?_W_Getmonths@_Locinfo@std@@QEBAPEBGXZ) already defined in libcpmtd.lib(wlocale.obj)
 msvcprtd.lib(MSVCP140D.dll) : error LNK2005: "public: class std::basic_ostream<char,struct std::char_traits<char> > & __cdecl std::basic_ostream<char,struct std::char_traits<char> >::operator<<(unsigned int)" (??6?$basic_ostream@DU?$char_traits@D@std@@@std@@QEAAAEAV01@I@Z) already defined in client.obj
 LINK : warning LNK4098: defaultlib 'MSVCRTD' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4217: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(rng.cpp.obj)' in function '"private: void __cdecl std::_Container_base12::_Orphan_all_locked_v3(void)" (?_Orphan_all_locked_v3@_Container_base12@std@@AEAAXXZ)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(keccak_core.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(gf2n.cpp.obj)'
 LINK : warning LNK4217: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(ec2n.cpp.obj)' in function '"public: void __cdecl CryptoPP::EC2N::DEREncode(class CryptoPP::BufferedTransformation &)const " (?DEREncode@EC2N@CryptoPP@@QEBAXAEAVBufferedTransformation@2@@Z)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(ecp.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(hex.cpp.obj)'
-LINK : warning LNK4217: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(rng.cpp.obj)' in function '"private: void __cdecl std::_Container_base12::_Orphan_all_locked_v3(void)" (?_Orphan_all_locked_v3@_Container_base12@std@@AEAAXXZ)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(sha3.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(pssr.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(gfpcrypt.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(hmac.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(gf2n.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(rijndael_simd.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(hrtimer.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(sha_simd.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(pkcspad.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(sha3.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(des.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(rijndael_simd.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(mqueue.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(dll.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(nbtheory.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(des.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(oaep.cpp.obj)'
 LINK : warning LNK4217: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(asn.cpp.obj)' in function '"public: void __cdecl CryptoPP::OID::BERDecode(class CryptoPP::BufferedTransformation &)" (?BERDecode@OID@CryptoPP@@QEAAXAEAVBufferedTransformation@2@@Z)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(rsa.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(misc.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(dll.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(iterhash.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(sha.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(osrng.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(pubkey.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(oaep.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(basecode.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(base64.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(queue.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(randpool.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(iterhash.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(filters.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(integer.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(algparam.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(basecode.cpp.obj)'
-LINK : warning LNK4217: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(cryptlib.cpp.obj)' in function '"class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl std::operator+<char,struct std::char_traits<char>,class std::allocator<char> >(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&)" (??$?HDU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@$$QEAV10@0@Z)'
-LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(allocate.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(modes.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(rijndael.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)'
+LINK : warning LNK4217: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(cryptlib.cpp.obj)' in function '"class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl std::operator+<char,struct std::char_traits<char>,class std::allocator<char> >(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&)" (??$?HDU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@$$QEAV10@0@Z)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(allocate.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(filters.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(integer.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(gf2n.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(ec2n.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(ecp.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(rng.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(nbtheory.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(des.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(gfpcrypt.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(hmac.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(gf2n.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(oaep.cpp.obj)'
 LINK : warning LNK4217: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(asn.cpp.obj)' in function '"public: void __cdecl CryptoPP::OID::DEREncode(class CryptoPP::BufferedTransformation &)const " (?DEREncode@OID@CryptoPP@@QEBAXAEAVBufferedTransformation@2@@Z)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(rsa.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(dll.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(des.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(queue.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(randpool.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(iterhash.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(pubkey.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(oaep.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(integer.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(rijndael.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(basecode.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(base64.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(queue.cpp.obj)'
 LINK : warning LNK4217: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(cryptlib.cpp.obj)' in function 'memcpy_s'
-LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(modes.cpp.obj)'
-LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(rijndael.cpp.obj)'
 LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(filters.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(integer.cpp.obj)'
+LINK : warning LNK4286: symbol '_invalid_parameter_noinfo' defined in 'libucrtd.lib(invalid_parameter.obj)' is imported by 'cryptopp-static.lib(modes.cpp.obj)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(rng.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(keccak_core.cpp.obj)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(gf2n.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(ec2n.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(ecp.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(hex.cpp.obj)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(rng.cpp.obj)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(sha3.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(pssr.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(gfpcrypt.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(hmac.cpp.obj)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(gf2n.cpp.obj)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(rijndael_simd.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(hrtimer.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(sha_simd.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(pkcspad.cpp.obj)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(sha3.cpp.obj)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(des.cpp.obj)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(rijndael_simd.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(mqueue.cpp.obj)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(dll.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(nbtheory.cpp.obj)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(des.cpp.obj)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(oaep.cpp.obj)'
 LINK : warning LNK4217: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(asn.cpp.obj)' in function '"private: unsigned int * __cdecl std::vector<unsigned int,class std::allocator<unsigned int> >::_Emplace_reallocate<unsigned int const &>(unsigned int * const,unsigned int const &)" (??$_Emplace_reallocate@AEBI@?$vector@IV?$allocator@I@std@@@std@@AEAAPEAIQEAIAEBI@Z)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(rsa.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(misc.cpp.obj)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(dll.cpp.obj)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(iterhash.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(sha.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(osrng.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(pubkey.cpp.obj)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(oaep.cpp.obj)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(basecode.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(base64.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(queue.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(randpool.cpp.obj)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(iterhash.cpp.obj)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(filters.cpp.obj)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(integer.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(algparam.cpp.obj)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(basecode.cpp.obj)'
-LINK : warning LNK4217: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(cryptlib.cpp.obj)' in function '"class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl std::operator+<char,struct std::char_traits<char>,class std::allocator<char> >(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&)" (??$?HDU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@$$QEAV10@0@Z)'
-LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(allocate.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(modes.cpp.obj)'
 LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(rijndael.cpp.obj)'
+LINK : warning LNK4217: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"public: virtual unsigned __int64 __cdecl CryptoPP::SourceTemplate<class CryptoPP::FileStore>::PumpMessages2(unsigned int &,bool)" (?PumpMessages2@?$SourceTemplate@VFileStore@CryptoPP@@@CryptoPP@@UEAA_KAEAI_N@Z)'
+LINK : warning LNK4217: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(cryptlib.cpp.obj)' in function '"class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl std::operator+<char,struct std::char_traits<char>,class std::allocator<char> >(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&)" (??$?HDU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@$$QEAV10@0@Z)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(allocate.cpp.obj)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(filters.cpp.obj)'
+LINK : warning LNK4286: symbol '_CrtDbgReport' defined in 'libucrtd.lib(dbgrpt.obj)' is imported by 'cryptopp-static.lib(integer.cpp.obj)'
+LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(gf2n.cpp.obj)'
 LINK : warning LNK4217: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(ec2n.cpp.obj)' in function '"public: virtual void __cdecl CryptoPP::EC2N::EncodePoint(class CryptoPP::BufferedTransformation &,struct CryptoPP::EC2NPoint const &,bool)const " (?EncodePoint@EC2N@CryptoPP@@UEBAXAEAVBufferedTransformation@2@AEBUEC2NPoint@2@_N@Z)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(ecp.cpp.obj)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(rng.cpp.obj)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(nbtheory.cpp.obj)'
+LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(des.cpp.obj)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(gfpcrypt.cpp.obj)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(hmac.cpp.obj)'
-LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(gf2n.cpp.obj)'
+LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(oaep.cpp.obj)'
 LINK : warning LNK4217: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(asn.cpp.obj)' in function '"private: void __cdecl std::vector<unsigned int,class std::allocator<unsigned int> >::_Orphan_range_locked(unsigned int *,unsigned int *)const " (?_Orphan_range_locked@?$vector@IV?$allocator@I@std@@@std@@AEBAXPEAI0@Z)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(rsa.cpp.obj)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(dll.cpp.obj)'
-LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(des.cpp.obj)'
+LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(queue.cpp.obj)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(randpool.cpp.obj)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(iterhash.cpp.obj)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(pubkey.cpp.obj)'
-LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(oaep.cpp.obj)'
-LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(integer.cpp.obj)'
+LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(rijndael.cpp.obj)'
+LINK : warning LNK4217: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"public: unsigned __int64 __cdecl CryptoPP::BufferedTransformation::ChannelPut(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,unsigned char,bool)" (?ChannelPut@BufferedTransformation@CryptoPP@@QEAA_KAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@E_N@Z)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(basecode.cpp.obj)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(base64.cpp.obj)'
-LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(queue.cpp.obj)'
 LINK : warning LNK4217: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(cryptlib.cpp.obj)' in function 'memcpy_s'
-LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(modes.cpp.obj)'
-LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(rijndael.cpp.obj)'
 LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(filters.cpp.obj)'
+LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(integer.cpp.obj)'
+LINK : warning LNK4286: symbol '_errno' defined in 'libucrtd.lib(errno.obj)' is imported by 'cryptopp-static.lib(modes.cpp.obj)'
 LINK : warning LNK4217: symbol 'free' defined in 'libucrtd.lib(free.obj)' is imported by 'cryptopp-static.lib(allocate.cpp.obj)' in function '"void __cdecl CryptoPP::UnalignedDeallocate(void *)" (?UnalignedDeallocate@CryptoPP@@YAXPEAX@Z)'
 LINK : warning LNK4217: symbol 'malloc' defined in 'libucrtd.lib(malloc.obj)' is imported by 'cryptopp-static.lib(allocate.cpp.obj)' in function '"void * __cdecl CryptoPP::UnalignedAllocate(unsigned __int64)" (?UnalignedAllocate@CryptoPP@@YAPEAX_K@Z)'
+LINK : warning LNK4217: symbol '_get_stream_buffer_pointers' defined in 'libucrtd.lib(_file.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"protected: void __cdecl std::basic_filebuf<char,struct std::char_traits<char> >::_Init(struct _iobuf *,enum std::basic_filebuf<char,struct std::char_traits<char> >::_Initfl)" (?_Init@?$basic_filebuf@DU?$char_traits@D@std@@@std@@IEAAXPEAU_iobuf@@W4_Initfl@12@@Z)'
+LINK : warning LNK4217: symbol 'fclose' defined in 'libucrtd.lib(fclose.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"public: class std::basic_filebuf<char,struct std::char_traits<char> > * __cdecl std::basic_filebuf<char,struct std::char_traits<char> >::close(void)" (?close@?$basic_filebuf@DU?$char_traits@D@std@@@std@@QEAAPEAV12@XZ)'
+LINK : warning LNK4217: symbol 'fflush' defined in 'libucrtd.lib(fflush.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"protected: virtual int __cdecl std::basic_filebuf<char,struct std::char_traits<char> >::sync(void)" (?sync@?$basic_filebuf@DU?$char_traits@D@std@@@std@@MEAAHXZ)'
+LINK : warning LNK4217: symbol 'fgetc' defined in 'libucrtd.lib(fgetc.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"bool __cdecl std::_Fgetc<char>(char &,struct _iobuf *)" (??$_Fgetc@D@std@@YA_NAEADPEAU_iobuf@@@Z)'
+LINK : warning LNK4217: symbol 'fgetpos' defined in 'libucrtd.lib(fgetpos.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"protected: virtual class std::fpos<struct _Mbstatet> __cdecl std::basic_filebuf<char,struct std::char_traits<char> >::seekoff(__int64,int,int)" (?seekoff@?$basic_filebuf@DU?$char_traits@D@std@@@std@@MEAA?AV?$fpos@U_Mbstatet@@@2@_JHH@Z)'
+LINK : warning LNK4217: symbol 'fputc' defined in 'libucrtd.lib(fputc.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"bool __cdecl std::_Fputc<char>(char,struct _iobuf *)" (??$_Fputc@D@std@@YA_NDPEAU_iobuf@@@Z)'
+LINK : warning LNK4217: symbol 'fread' defined in 'libucrtd.lib(fread.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"protected: virtual __int64 __cdecl std::basic_filebuf<char,struct std::char_traits<char> >::xsgetn(char *,__int64)" (?xsgetn@?$basic_filebuf@DU?$char_traits@D@std@@@std@@MEAA_JPEAD_J@Z)'
+LINK : warning LNK4217: symbol 'fsetpos' defined in 'libucrtd.lib(fsetpos.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"protected: virtual class std::fpos<struct _Mbstatet> __cdecl std::basic_filebuf<char,struct std::char_traits<char> >::seekpos(class std::fpos<struct _Mbstatet>,int)" (?seekpos@?$basic_filebuf@DU?$char_traits@D@std@@@std@@MEAA?AV?$fpos@U_Mbstatet@@@2@V32@H@Z)'
+LINK : warning LNK4217: symbol '_fseeki64' defined in 'libucrtd.lib(fseek.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"protected: virtual class std::fpos<struct _Mbstatet> __cdecl std::basic_filebuf<char,struct std::char_traits<char> >::seekoff(__int64,int,int)" (?seekoff@?$basic_filebuf@DU?$char_traits@D@std@@@std@@MEAA?AV?$fpos@U_Mbstatet@@@2@_JHH@Z)'
+LINK : warning LNK4217: symbol 'fwrite' defined in 'libucrtd.lib(fwrite.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"protected: bool __cdecl std::basic_filebuf<char,struct std::char_traits<char> >::_Endwrite(void)" (?_Endwrite@?$basic_filebuf@DU?$char_traits@D@std@@@std@@IEAA_NXZ)'
+LINK : warning LNK4217: symbol 'setvbuf' defined in 'libucrtd.lib(setvbuf.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"protected: virtual class std::basic_streambuf<char,struct std::char_traits<char> > * __cdecl std::basic_filebuf<char,struct std::char_traits<char> >::setbuf(char *,__int64)" (?setbuf@?$basic_filebuf@DU?$char_traits@D@std@@@std@@MEAAPEAV?$basic_streambuf@DU?$char_traits@D@std@@@2@PEAD_J@Z)'
+LINK : warning LNK4217: symbol 'ungetc' defined in 'libucrtd.lib(ungetc.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"bool __cdecl std::_Ungetc<char>(char const &,struct _iobuf *)" (??$_Ungetc@D@std@@YA_NAEBDPEAU_iobuf@@@Z)'
+LINK : warning LNK4217: symbol '_lock_file' defined in 'libucrtd.lib(_file.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"public: virtual void __cdecl std::basic_filebuf<char,struct std::char_traits<char> >::_Lock(void)" (?_Lock@?$basic_filebuf@DU?$char_traits@D@std@@@std@@UEAAXXZ)'
+LINK : warning LNK4217: symbol '_unlock_file' defined in 'libucrtd.lib(_file.obj)' is imported by 'cryptopp-static.lib(files.cpp.obj)' in function '"public: virtual void __cdecl std::basic_filebuf<char,struct std::char_traits<char> >::_Unlock(void)" (?_Unlock@?$basic_filebuf@DU?$char_traits@D@std@@@std@@UEAAXXZ)'
 LINK : warning LNK4217: symbol 'isalpha' defined in 'libucrtd.lib(_ctype.obj)' is imported by 'cryptopp-static.lib(basecode.cpp.obj)' in function '"public: static void __cdecl CryptoPP::BaseN_Decoder::InitializeDecodingLookupArray(int *,unsigned char const *,unsigned int,bool)" (?InitializeDecodingLookupArray@BaseN_Decoder@CryptoPP@@SAXPEAHPEBEI_N@Z)'
 LINK : warning LNK4217: symbol 'toupper' defined in 'libucrtd.lib(tolower_toupper.obj)' is imported by 'cryptopp-static.lib(basecode.cpp.obj)' in function '"public: static void __cdecl CryptoPP::BaseN_Decoder::InitializeDecodingLookupArray(int *,unsigned char const *,unsigned int,bool)" (?InitializeDecodingLookupArray@BaseN_Decoder@CryptoPP@@SAXPEAHPEBEI_N@Z)'
 LINK : warning LNK4217: symbol 'tolower' defined in 'libucrtd.lib(tolower_toupper.obj)' is imported by 'cryptopp-static.lib(basecode.cpp.obj)' in function '"public: static void __cdecl CryptoPP::BaseN_Decoder::InitializeDecodingLookupArray(int *,unsigned char const *,unsigned int,bool)" (?InitializeDecodingLookupArray@BaseN_Decoder@CryptoPP@@SAXPEAHPEBEI_N@Z)'
