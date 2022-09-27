@@ -2,7 +2,7 @@
 
 #include <string>
 
-
+constexpr auto ENCRYPTED_FILE_SUFFIX = ".enc";
 class AESWrapper
 {
 public:
@@ -20,5 +20,6 @@ public:
 	const unsigned char* getKey() const;
 
 	std::string encrypt(const char* plain, unsigned int length);
+	bool encryptFile(const std::string&);
 	std::string decrypt(const char* cipher, unsigned int length);
 };

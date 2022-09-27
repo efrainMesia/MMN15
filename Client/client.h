@@ -5,22 +5,23 @@
 #include "Base64Wrapper.h"
 #include "AESWrapper.h"
 #include "FileHandler.h"
+#include "crc.h"
 
 
 constexpr auto CLIENT_INFO = "me.info";
 constexpr auto SERVER_INFO = "server.info";
 constexpr auto TRANSFER_INFO = "transfer.info";
+constexpr auto MAX_RETRIES = 3;
 class Socket;
 
 struct SClient {
 	ClientID id;
 	std::string username;
-
 	std::string pkey;
 	bool pkeySet = false;
 	std::string symmKey;
 	bool symmKeySet = false;
-	
+	SClient() : id(), username(""), pkey(""), symmKey("") {}
 	
 	friend std::ostream& operator<<(std::ostream& os, const SClient& c)
 	{

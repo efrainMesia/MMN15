@@ -60,7 +60,7 @@ bool Client::registerClient(const std::string& username)
 	}
 
 	// Create request data
-	strcpy_s(reinterpret_cast<char*>(requestReg.payload.name), CLIENT_NAME_SIZE, username.c_str());
+	strcpy_s(requestReg.payload.name, CLIENT_NAME_SIZE, username.c_str());
 	requestReg.header.payloadSize = username.length();
 
 	//send the data and receive response
@@ -140,13 +140,13 @@ bool Client::setPublicKey()
 bool Client::uploadFile() {
 	RequestFileUpload fileUpload(_self.id);
 	ResponseFileUpload ResFileUpload;
-	
+	RequestCRC* crcStatus = nullptr;
+	CRC* calcCrc = new CRC();
 	std::string fileToTransfer;
-	std::vector<char> buffer(20,0);
+	char* buffer = new char[FILE_METADATA];
 	std::string encryptedData;
-	size_t fileSize;
 	size_t sentDataPacket = INIT_VAL;
-	
+	uint32_t crc = INIT_VAL;
 
 	// Get the file from path transfer.info
 	if (!_fileHandler->open(TRANSFER_INFO)) {
@@ -159,43 +159,52 @@ bool Client::uploadFile() {
 		std::cerr << "[+] ERROR: couldnt read line from file " << TRANSFER_INFO << std::endl;
 		return false;
 	}
-	
+	crc = calcCrc->calcCrc(fileToTransfer);
 	// Open path and get size of file
-	std::ifstream fin(fileToTransfer, std::ifstream::binary);
-
+	fileUpload.header.payloadSize = _fileHandler->size(fileToTransfer);
 	// Getting File Metadata 
-	std::string base_filename = fileToTransfer.substr(fileToTransfer.find_last_of("/\\") + 1);	
-	strcpy_s(fileUpload.payload.fm.filename, base_filename.c_str());
-	fileUpload.payload.fm.fileNameLength = base_filename.length();
-	size_t fileSize = std::filesystem::file_size(fileToTransfer);
+	std::string base_filename = fileToTransfer.substr(fileToTransfer.find_last_of("/\\") + 1);
+	_aesDecryptor->encryptFile(base_filename);
 
-	//read by chunks(use vector)
-	while (!fin.eof()){
-		fin.read(buffer.data(), 10);
+	// Getting size of encrypted file
+	std::string base_filename_encrypted = base_filename + ENCRYPTED_FILE_SUFFIX;
+	fileUpload.payload.encryptedFileSize = _fileHandler->size(base_filename_encrypted);
 
-		//TODO : SIMULATION - PAYLOADSIZE suppose to be the full size of the file
-		fileUpload.header.payloadSize = 10; 
-		//Encrypt Data
-		encryptedData = _aesDecryptor->encrypt(buffer.data(), 10);
+	strcpy_s(fileUpload.payload.filename, FILE_METADATA, base_filename.c_str()); //copy Filename
+	
+	
+	uint8_t retries = INIT_VAL;
+	_fileHandler->open(base_filename_encrypted);
+	//read by chunks
+	while (retries < MAX_RETRIES) {
+		fileUpload.header.payloadSize = _fileHandler->readByChunks(fileUpload.payload.encrypteDataPacket, FILE_METADATA);
 
-		//copy the encrypted data to payload
-		fileUpload.payload.dp.dataPacketSize = encryptedData.length();
-		strcpy_s(fileUpload.payload.dp.dataPacket,encryptedData.c_str());
-
-		//adding crc
-		fileUpload.payload.crc.crc = doCrc(reinterpret_cast<uint8_t*>(fileUpload.payload.dp.dataPacket), 10);
-		
-		//sending data
-		if (!_sock->sendReceive(reinterpret_cast<char*>(&fileUpload), sizeof(fileUpload),
-			reinterpret_cast<char*>(&ResFileUpload), sizeof(ResFileUpload))) {
-			LOG_ERROR("failed communicating with server");
-			return false;
+		if (fileUpload.header.payloadSize == 0) {
+			_sock->recv(reinterpret_cast<char*>(&ResFileUpload), sizeof(ResFileUpload));
+			if (ResFileUpload.payload.crc != crc) {
+				RequestCRC* crcStatus = new RequestCRC(_self.id, CRC_AGAIN);
+				_sock->send(reinterpret_cast<char*>(crcStatus), sizeof(RequestCRC));
+				retries++;
+				_fileHandler->open(base_filename_encrypted);
+			}
+			else {
+				RequestCRC* crcStatus = new RequestCRC(_self.id, CRC_OK);
+				_sock->send(reinterpret_cast<char*>(crcStatus), sizeof(RequestCRC));
+				break;
+			}
+		}
+		else {
+			_sock->send(reinterpret_cast<char*>(&fileUpload), sizeof(fileUpload));
 		}
 	}
-	// Encrypt data with AES key
-	// Send Data
-
-	// check CRC and continue to next chunk
+	if (retries == MAX_RETRIES) {
+		RequestCRC* crcStatus = new RequestCRC(_self.id, CRC_FAILED);
+		_sock->send(reinterpret_cast<char*>(crcStatus), sizeof(RequestCRC));
+		LOG_ERROR("Max retries reached, exiting...");
+		return false;
+	}
+	else
+		LOG("File has been sent successfully");
 
 	return true;
 }

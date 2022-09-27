@@ -7,8 +7,8 @@ enum { INIT_VAL = 0};
 
 //Common types
 typedef uint16_t opcode_t;
-typedef uint16_t fsize;
-
+typedef uint32_t fsize;
+typedef uint8_t version_t;
 
 // Constants, all sizes are in bytes
 constexpr size_t DEFAULT_BUFLEN = 1024;
@@ -18,21 +18,25 @@ constexpr size_t PUBLIC_KEY_SIZE = 160;
 constexpr size_t SYMMETRIC_KEY_SIZE = 16;
 constexpr size_t ENCRYPTED_DATA = 128;
 constexpr size_t CRC_SIZE = 32;
-constexpr size_t DATA_PACKET = 20;
+constexpr size_t DATA_PACKET = 64;
 constexpr size_t FILE_METADATA = 256;
+
+
 enum EnumRequestCode {
-    REQUEST_REG = 1000,      //uuid ignored
-    REQUEST_PAIRING = 1001,  //update keys
-    REQUEST_UPLOAD = 1002,
-    REQUEST_CRC = 1003,
+    REQUEST_REG = 1100,      //uuid ignored
+    REQUEST_PAIRING = 1101,  //update keys
+    REQUEST_UPLOAD = 1103,
+    CRC_OK = 1104,
+    CRC_AGAIN = 1105,
+    CRC_FAILED = 1106
 };
 
 enum EnumResponseCode {
-    RESPONSE_REG = 2000,
-    RESPONSE_PAIRING = 2001,
-    RESPONSE_UPLOAD = 2002,
-    RESPONSE_CRC = 2003,
-    RESPONSE_ERROR = 2004
+    RESPONSE_REG = 2100,
+    RESPONSE_PAIRING = 2102,
+    RESPONSE_UPLOAD_CRC_OK = 2103,
+    RESPONSE_OK = 2104,
+    RESPONSE_ERROR = 2005
 };
 
 #pragma pack(push, 1)
@@ -96,31 +100,29 @@ struct CRCKey {
 };
 
 struct FileDataPacket {
-    uint8_t dataPacketSize;
-    char dataPacket[DATA_PACKET];
-    FileDataPacket() : dataPacketSize(INIT_VAL),dataPacket{ INIT_VAL } {}
-};
-
-struct FileMetadata {
-    uint8_t fileNameLength;
+    uint32_t encryptedFileSize;
     char filename[FILE_METADATA];
-    FileMetadata() : fileNameLength(INIT_VAL), filename{ INIT_VAL } {}
+    char encrypteDataPacket[FILE_METADATA];
+    FileDataPacket() : encryptedFileSize(INIT_VAL), filename{ INIT_VAL }, encrypteDataPacket{ INIT_VAL } {}
 };
 
 
 
 struct RequestHeader {
     ClientID clientId;
+    const version_t version;
     const opcode_t opcode;
     fsize payloadSize;
-    RequestHeader(const opcode_t reqCode) :opcode(reqCode), payloadSize(INIT_VAL) {}
-    RequestHeader(const ClientID& id, const opcode_t reqCode) : clientId(id), opcode(reqCode), payloadSize(INIT_VAL) {}
+    RequestHeader(const ClientID& id) : version(INIT_VAL), clientId(id), opcode(INIT_VAL), payloadSize(INIT_VAL) {}
+    RequestHeader(const opcode_t reqCode) :version(INIT_VAL), opcode(reqCode), payloadSize(INIT_VAL) {}
+    RequestHeader(const ClientID& id, const opcode_t reqCode) : version(INIT_VAL),clientId(id), opcode(reqCode), payloadSize(INIT_VAL) {}
 };
 
 struct ResponseHeader {
+    version_t version;
     const opcode_t opcode;
     fsize payloadSize;
-    ResponseHeader() : opcode(INIT_VAL), payloadSize(INIT_VAL){}
+    ResponseHeader() : version(INIT_VAL), opcode(INIT_VAL), payloadSize(INIT_VAL){}
 };
 
 struct RequestReg
@@ -151,16 +153,18 @@ struct ResponseSymmKey
 
 struct RequestFileUpload {
     RequestHeader header;
-    struct {
-        FileMetadata fm;
-        FileDataPacket dp;
-        CRCKey crc;
-    }payload;
+    FileDataPacket payload;
     RequestFileUpload(const ClientID& id) : header(id, REQUEST_UPLOAD), payload(){}
 };
 
 struct ResponseFileUpload {
     ResponseHeader header;
+    CRCKey payload;
+};
+
+struct RequestCRC {
+    RequestHeader header;
+    RequestCRC(const ClientID& id, const opcode_t opcode) :header(id,opcode) {}
 };
 
 #pragma pack(pop)

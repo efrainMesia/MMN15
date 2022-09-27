@@ -3,13 +3,22 @@
 #include <algorithm>
 
 
-FileHandler::FileHandler() : _fileStream(nullptr), _open(false)
+FileHandler::FileHandler()
 {
+	_inFileStream = nullptr;
+	_outFileStream = nullptr;
+	_openToRead = false; 
+	_openToWrite = false;
 }
 
 FileHandler::~FileHandler()
 {
-	close();
+	_inFileStream->close();
+	_outFileStream->close();
+	_openToWrite = false;
+	_openToRead = false;
+	delete _inFileStream;
+	delete _outFileStream;
 }
 
 
@@ -19,61 +28,56 @@ FileHandler::~FileHandler()
  */
 bool FileHandler::open(const std::string& filepath, bool write)
 {
-	const auto flags = write ? (std::fstream::binary | std::fstream::out) : (std::fstream::binary | std::fstream::in);
+	const auto flags = write ? (std::ios::binary | std::ios::out) : (std::ios::binary | std::ios::in);
 	if (filepath.empty())
 		return false;
 
 	try
 	{
-		close(); // close and clear current fstream before allocating new one.
-		_fileStream = new std::fstream;
-		// create directories within the path if they are do not exist.
-		_fileStream->open(filepath, flags);
-		_open = _fileStream->is_open();
+		// close and clear current fstream before allocating new one.
+		if (write) {
+			if (_openToWrite)
+				_outFileStream->close();
+			_outFileStream = new std::ofstream;
+			_outFileStream->open(filepath, flags);
+			_openToWrite = _outFileStream->is_open();
+		}
+		else {
+			if (_openToRead)
+				_inFileStream->close();
+			_inFileStream = new std::ifstream;
+			_inFileStream->open(filepath, flags);
+			_openToRead = _inFileStream->is_open();
+		}
 	}
 	catch (...)
 	{
-		_open = false;
+		if (write){
+			_openToWrite = false;
+		}
+		else {
+			_openToRead = false;
+		}
 	}
-	return _open;
-}
-
-
-/**
- * Close file stream.
- */
-void FileHandler::close()
-{
-	try
-	{
-		if (_fileStream != nullptr)
-			_fileStream->close();
-	}
-	catch (...)
-	{
-		/* Do Nothing */
-	}
-	delete _fileStream;
-	_fileStream = nullptr;
-	_open = false;
+	return write ? _openToWrite : _openToRead;
 }
 
 /**
  * Read bytes from fs to dest.
  */
-bool FileHandler::readByChunks(char* dest, const size_t bytes)
+uint32_t FileHandler::readByChunks(char* dest,const size_t bytes) const
 {
-	if (_fileStream == nullptr || !_open || dest == nullptr || bytes == 0)
-		return false;
+	if (_inFileStream == nullptr || !_openToRead || _inFileStream->eof())
+		return 0;
 	try
 	{
-		_fileStream->read(dest, bytes);
-		return true;
+		uint32_t extracted = _inFileStream->read(dest,bytes).gcount();
+		return extracted;
 	}
 	catch (...)
 	{
 		std::cerr << "Error: Couldnt read from file" << std::endl;
-		return false;
+		return 0;
 	}
 }
 
@@ -81,13 +85,13 @@ bool FileHandler::readByChunks(char* dest, const size_t bytes)
 /**
  * Write given bytes from src to fs.
  */
-bool FileHandler::write(const uint8_t* const src, const size_t bytes) const
+bool FileHandler::write(const char* src, const size_t bytes)
 {
-	if (_fileStream == nullptr || !_open || src == nullptr || bytes == 0)
+	if (_outFileStream == nullptr || !_openToWrite || src == nullptr || bytes == 0)
 		return false;
 	try
 	{
-		_fileStream->write(reinterpret_cast<const char*>(src), bytes);
+		_outFileStream->write(src, bytes);
 		return true;
 	}
 	catch (...)
@@ -102,11 +106,10 @@ bool FileHandler::write(const uint8_t* const src, const size_t bytes) const
  */
 bool FileHandler::readLine(std::string& line) const
 {
-	if (_fileStream == nullptr || !_open)
+	if (_inFileStream == nullptr || !_openToRead)
 		return false;
-	try
-	{
-		if (!std::getline(*_fileStream, line) || line.empty())
+	try {
+		if (!std::getline(*_inFileStream, line) || line.empty())
 			return false;
 		return true;
 	}
@@ -115,73 +118,25 @@ bool FileHandler::readLine(std::string& line) const
 		return false;
 	}
 }
-
-/**
- * Write a single string and append an end line character.
- */
-bool FileHandler::writeLine(const std::string& line) const
-{
-	std::string newline = line;
-	newline.append("\n");
-	return write(reinterpret_cast<const uint8_t*>(newline.c_str()), newline.size());  // write without null termination.
-}
-
+	
 
 /**
  * Calculate the file size which is opened by fs.
  */
-size_t FileHandler::size() const
+long FileHandler::size(std::string filePath) const
 {
-	if (_fileStream == nullptr || !_open)
+	if (_inFileStream == nullptr || !_openToRead)
 		return 0;
 	try
 	{
-		const auto cur = _fileStream->tellg();
-		_fileStream->seekg(0, std::fstream::end);
-		const auto size = _fileStream->tellg();
-		if ((size <= 0) || (size > UINT32_MAX))    // do not support more than uint32 max size files. (up to 4GB).
-			return 0;
-		_fileStream->seekg(cur);    // restore position
-		return static_cast<size_t>(size);
+		struct stat stat_buf;
+		int rc = stat(filePath.c_str(), &stat_buf);
+		return rc == 0 ? stat_buf.st_size : -1;
 	}
 	catch (...)
 	{
-		return 0;
+		return -1;
 	}
 }
 
-/**
- * Open and read file.
- * Caller is responsible for freeing allocated memory upon success.
- */
-//bool FileHandler::readAtOnce(const std::string& filepath, uint8_t*& file, size_t& bytes)
-//{
-//	if (!open(filepath))
-//		return false;
-//
-//	bytes = size();
-//	if (bytes == 0)
-//		return false;
-//
-//	file = new uint8_t[bytes];
-//	const bool success = read(file, bytes);
-//	if (!success)
-//	{
-//		delete[] file;
-//	}
-//	close();
-//	return success;
-//}
 
-/**
- * Open and write data to file.
- */
-bool FileHandler::writeAtOnce(const std::string& filepath, const std::string& data)
-{
-	if (data.empty() || !open(filepath, true))
-		return false;
-
-	const bool success = write(reinterpret_cast<const uint8_t* const>(data.c_str()), data.size());
-	close();
-	return success;
-}

@@ -17,7 +17,6 @@ private:
 public:
 	Socket();
 	~Socket();
-	bool closeSocket();
 	bool connect(std::string,unsigned short int);
 	int send(char*, int);
 	int recv(char*, int);

@@ -3,6 +3,8 @@
 #include <cryptopp/modes.h>
 #include <cryptopp/aes.h>
 #include <cryptopp/filters.h>
+#include <cryptopp/files.h>
+#include <cryptopp/channels.h>
 
 #include <stdexcept>
 #include <immintrin.h>	// _rdrand32_step
@@ -44,11 +46,36 @@ std::string AESWrapper::encrypt(const char* plain, unsigned int length)
 	CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv);
 
 	std::string cipher;
-	CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
+	CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher), CryptoPP::StreamTransformationFilter::ZEROS_PADDING);
 	stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(plain), length);
 	stfEncryptor.MessageEnd();
 
 	return cipher;
+}
+
+bool AESWrapper::encryptFile(const std::string& filename_in) {
+	try {
+		// Set up the encrypter
+		CryptoPP::byte iv[CryptoPP::AES::BLOCKSIZE] = { 0 };	// for practical use iv should never be a fixed value!
+
+		CryptoPP::AES::Encryption aesEncryption(_key, DEFAULT_KEYLENGTH);
+		CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv);
+		std::string filename_out = filename_in + ENCRYPTED_FILE_SUFFIX;
+		// encrypt
+		//if (filenameOut == "cout")
+		// FileSource( filenameIn.c_str(), true, new
+		std::ifstream in{ filename_in, std::ios::binary };
+		std::ofstream out{ filename_out, std::ios::binary };
+		//CryptoPP::StreamTransformationFilter(cbcEncryption, new CryptoPP::FileSink(out));
+		//else
+		CryptoPP::FileSource(in, true, new CryptoPP::StreamTransformationFilter(cbcEncryption, new CryptoPP::FileSink(out)));
+		//err = false;
+		return true;
+	}
+	catch (std::exception& e) {
+		std::cerr << "[+] ERROR:" << e.what() << std::endl;
+		return false;
+	}
 }
 
 
@@ -60,7 +87,7 @@ std::string AESWrapper::decrypt(const char* cipher, unsigned int length)
 	CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv);
 
 	std::string decrypted;
-	CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
+	CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted), CryptoPP::StreamTransformationFilter::ZEROS_PADDING);
 	stfDecryptor.Put(reinterpret_cast<const CryptoPP::byte*>(cipher), length);
 	stfDecryptor.MessageEnd();
 

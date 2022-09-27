@@ -3,6 +3,8 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
+#include <sys/stat.h>
+
 
 /* TODO: Change Write 
    
@@ -13,28 +15,19 @@ public:
     FileHandler();
     virtual ~FileHandler();
 
-    // do not allow
-    FileHandler(const FileHandler& other) = delete;
-    FileHandler(FileHandler&& other) noexcept = delete;
-    FileHandler& operator=(const FileHandler& other) = delete;
-    FileHandler& operator=(FileHandler&& other) noexcept = delete;
 
     // file wrapper functions
     bool open(const std::string& filepath, bool write = false);
-    void close();
-    bool readByChunks(char* dest, const size_t bytes);
-    bool write(const uint8_t* const src, const size_t bytes) const;
+    uint32_t readByChunks(char*,const size_t) const;
+    bool write(const char* src, const size_t bytes) ;
     bool readLine(std::string& line) const;
-    bool writeLine(const std::string& line) const;
-    size_t size() const;
-
-    bool readAtOnce(const std::string& filepath, uint8_t*& file, size_t& bytes);
-    bool writeAtOnce(const std::string& filepath, const std::string& data);
-
-    // Special folders
-    std::string getTempFolder() const;
+    long size(std::string) const;
 
 private:
     std::fstream* _fileStream;
-    bool          _open;  // indicates whether a file is open.
+    std::ifstream* _inFileStream;
+    std::ofstream* _outFileStream;
+
+    bool _openToWrite;  // indicates whether a file is open.
+    bool _openToRead;
 };
