@@ -45,8 +45,11 @@ bool FileHandler::open(const std::string& filepath, bool write)
 		else {
 			if (_openToRead)
 				_inFileStream->close();
+			if (!this->is_file_exist(filepath))
+				return false;
 			_inFileStream = new std::ifstream;
 			_inFileStream->open(filepath, flags);
+			bool test = _inFileStream->good();
 			_openToRead = _inFileStream->is_open();
 		}
 	}
@@ -104,13 +107,15 @@ bool FileHandler::write(const char* src, const size_t bytes)
 /**
  * Read a single line from fs to line.
  */
-bool FileHandler::readLine(std::string& line) const
+bool FileHandler::readLine(std::string& line,bool removeWhiteSpace) const
 {
 	if (_inFileStream == nullptr || !_openToRead)
 		return false;
 	try {
 		if (!std::getline(*_inFileStream, line) || line.empty())
 			return false;
+		if (removeWhiteSpace)
+			trim(line);
 		return true;
 	}
 	catch (...)
@@ -119,7 +124,17 @@ bool FileHandler::readLine(std::string& line) const
 	}
 }
 	
-
+bool FileHandler::writeLine(std::string& line) {
+	if (_outFileStream == nullptr || !_openToWrite)
+		return false;
+	try {
+		std::string newLine = line + '\n';
+		_outFileStream->write(newLine.c_str(), newLine.size());
+	}
+	catch (...) {
+		return false;
+	}
+}
 /**
  * Calculate the file size which is opened by fs.
  */
@@ -137,6 +152,12 @@ long FileHandler::size(std::string filePath) const
 	{
 		return -1;
 	}
+}
+
+bool FileHandler::is_file_exist(const std::string& fileName)
+{
+	struct stat buffer;
+	return (stat(fileName.c_str(), &buffer) == 0);
 }
 
 
