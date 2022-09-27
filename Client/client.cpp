@@ -2,6 +2,7 @@
 
 Client::Client()
 {
+	_self = new SClient();
 	_sock = new Socket();
 	_rsaDecryptor = new RSAPrivateWrapper();
 	_aesDecryptor = nullptr;
@@ -12,6 +13,132 @@ Client::~Client()
 {
 	delete _sock;
 }
+
+bool Client::loadTransferInfo() {
+	std::string buf = "";
+	char delimm = ':';
+	std::string serverIP = "";
+	std::string port = "";
+
+	//open file - transfer.info
+	if (!_fileHandler->open(TRANSFER_INFO)) {
+		LOG_ERROR("Unable to open file transfer.info");
+	}
+	LOG("Parsing transfer.info");
+
+	//readline - ip address and port
+	if (!_fileHandler->readLine(buf,true)) {
+		LOG_ERROR("Failed reading from file transfer.info");
+		return false;
+	}
+	if (countDelim(buf,delimm) == 1) {
+		int pos = buf.find(":");
+		serverIP = buf.substr(0, pos);
+		port = buf.substr(pos+1);
+	}
+	else {
+		LOG_ERROR("Wrong syntax of server ip and port in transfer.info");
+		return false;
+	}
+	
+	//readline - client name
+	if (!_fileHandler->readLine(buf,true)) {
+		LOG_ERROR("Failed reading second line in me.info");
+		return false;
+	}
+	if (buf.length() > CLIENT_NAME_SIZE || !isAlNum(buf)) {
+		LOG_ERROR("Username type is not allow, make sure less than 128 and alphanumeric");
+		return false;
+	}
+	_self->username = buf;
+
+	//read line - file name
+	if (!_fileHandler->readLine(buf,true)) {
+		LOG_ERROR("Failed reading third line in me.info");
+		return false;
+	}
+	_self->fileToSend = buf;
+	return true;
+}
+
+bool Client::loadClientInfo()
+{
+	std::string buf = "";
+	//Open me.info
+	if (!_fileHandler->open(CLIENT_INFO)) {
+		LOG_ERROR("Unable to open file me.info");
+		return false;
+	}
+
+	//read line - username
+	if (!_fileHandler->readLine(buf,false)) {
+		LOG_ERROR("Failed reading from file me.info");
+		return false;
+	}
+	if (buf.length() > CLIENT_NAME_SIZE || !isAlNum(buf)) {
+		LOG_ERROR("Username length over 128");
+		return false;
+	}
+	_self->username = buf;
+
+
+	// read line - client ID - base in 64
+	if (!_fileHandler->readLine(buf,false)) {
+		LOG_ERROR("Failed reading second line in me.info");
+		return false;
+	}
+	buf = decodeBase64(buf);
+	if (buf.length() > CLIENT_ID_SIZE) {
+		LOG_ERROR("ID size its too long");
+		return false;
+	}
+	LOG("UUID: " + buf);
+	strcpy_s(_self->id.uuid, CLIENT_ID_SIZE, buf.c_str());
+
+	// read line - Public Key
+	if (!_fileHandler->readLine(buf,false)) {
+		LOG_ERROR("Failed reading third line in me.info");
+		return false;
+	}
+	_self->pkey = buf;
+	_self->pkeySet = true;
+
+	return true;
+}
+
+
+bool Client::writeClientInfo() {
+	std::string buf = "";
+	//open file - transfer.info for writing
+	if (!_fileHandler->open(CLIENT_INFO, true)) {
+		LOG_ERROR("Unable to open file me.info");
+		return false;
+	}
+
+	//writing username 
+	if (!_fileHandler->writeLine(_self->username)) {
+		LOG_ERROR("Failed writing to file me.info");
+		return false;
+	}
+
+	//writing UUID
+	buf = encodeBase64(_self->id.uuid);
+	LOG("UUID in Base64" + buf);
+	if (!_fileHandler->writeLine(buf)) {
+		LOG_ERROR("Failed writing UUID to file me.info");
+		return false;
+	}
+
+	//writing publicKey
+	buf = encodeBase64(_self->pkey);
+	LOG("Private Key in Base64" + buf);
+	if (!_fileHandler->writeLine(buf)) {
+		LOG_ERROR("Failed writing private Key to file me.info");
+		return false;
+	}
+	return true;
+}
+
 
 bool Client::validateHeader(const ResponseHeader& header, const EnumResponseCode expected)
 {
@@ -30,9 +157,7 @@ bool Client::validateHeader(const ResponseHeader& header, const EnumResponseCode
 		case RESPONSE_PAIRING: {
 			expectedSize = sizeof(ResponseSymmKey) - sizeof(ResponseHeader);
 			break;
-		}
-		// TODO: add CRC and uploadFile
-		
+		}		
 	}
 	if (header.payloadSize != expectedSize) {
 		std::cerr << "Unexpected payload size " << header.payloadSize << ".Expected was " << expectedSize << std::endl;
@@ -45,19 +170,6 @@ bool Client::registerClient(const std::string& username)
 {
 	RequestReg requestReg;
 	ResponseReg responseReg;
-
-	// Check length of username
-	if (username.length() >= CLIENT_NAME_SIZE) {
-		LOG_ERROR("Invalid username length");
-		return false;
-	}
-
-	//check if its only alphanumeric
-	for (auto ch : username) {
-		if (!std::isalnum(ch)) {
-			LOG_ERROR("Invalid username, Username must contains letters and numbers only");
-		}
-	}
 
 	// Create request data
 	strcpy_s(requestReg.payload.name, CLIENT_NAME_SIZE, username.c_str());
@@ -75,8 +187,8 @@ bool Client::registerClient(const std::string& username)
 		return false;
 	
 	//setting the Client object
-	_self.id = responseReg.payload;
-	_self.username = username;
+	_self->id = responseReg.payload;
+	_self->username = username;
 	
 	std::cout << _self << std::endl;
 	return true;
@@ -87,10 +199,10 @@ bool Client::registerClient(const std::string& username)
 
 bool Client::registerPublicKey()
 {
-	RequestPublicKey requestPKey(_self.id);
+	RequestPublicKey requestPKey(_self->id);
 	ResponseSymmKey responseRegPKey;
 
-	if (!_self.pkeySet) {
+	if (!_self->pkeySet) {
 		if (!setPublicKey()) {
 			std::cerr << "Failed to set public key" << std::endl;
 			return false;
@@ -101,7 +213,7 @@ bool Client::registerPublicKey()
 	//copy the pkey to buffer before sending it
 	int i;
 	for (i = 0; i < sizeof(requestPKey.payload.publicKey); i++) {
-		requestPKey.payload.publicKey[i] = this->_self.pkey[i];
+		requestPKey.payload.publicKey[i] = _self->pkey[i];
 	}
 	requestPKey.header.payloadSize = PUBLIC_KEY_SIZE;
 
@@ -115,9 +227,9 @@ bool Client::registerPublicKey()
 	if (!validateHeader(responseRegPKey.header, RESPONSE_PAIRING))
 		return false;
 	
-	_self.symmKey = _rsaDecryptor->decrypt(responseRegPKey.symmKey.symmKey, ENCRYPTED_DATA);
-	_aesDecryptor = new AESWrapper(_self.symmKey.c_str(), SYMMETRIC_KEY_SIZE);
-	_self.symmKeySet = true;
+	_self->symmKey = _rsaDecryptor->decrypt(responseRegPKey.symmKey.symmKey, ENCRYPTED_DATA);
+	_aesDecryptor = new AESWrapper(_self->symmKey.c_str(), SYMMETRIC_KEY_SIZE);
+	_self->symmKeySet = true;
 	return true;
 }
 
@@ -131,64 +243,49 @@ bool Client::setPublicKey()
 		LOG_ERROR("Invalid public key length!");
 		return false;
 	}
-	this->_self.pkey = pubkey;
-	this->_self.pkeySet = true;
+	_self->pkey = pubkey;
+	_self->pkeySet = true;
 
 	return true;
 }
 
 bool Client::uploadFile() {
-	RequestFileUpload fileUpload(_self.id);
+	RequestFileUpload fileUpload(_self->id);
 	ResponseFileUpload ResFileUpload;
 	RequestCRC* crcStatus = nullptr;
 	CRC* calcCrc = new CRC();
-	std::string fileToTransfer;
 	char* buffer = new char[FILE_METADATA];
-	std::string encryptedData;
+	std::string encryptedData = "";
 	size_t sentDataPacket = INIT_VAL;
 	uint32_t crc = INIT_VAL;
+	uint8_t retries = INIT_VAL;
 
-	// Get the file from path transfer.info
-	if (!_fileHandler->open(TRANSFER_INFO)) {
-		std::cerr << "[+] ERROR: Couldnt open file: " << TRANSFER_INFO << std::endl;
-		return false;
-	}
-
-	// Open file and get file path
-	if (!_fileHandler->readLine(fileToTransfer)) {
-		std::cerr << "[+] ERROR: couldnt read line from file " << TRANSFER_INFO << std::endl;
-		return false;
-	}
-	crc = calcCrc->calcCrc(fileToTransfer);
-	// Open path and get size of file
-	fileUpload.header.payloadSize = _fileHandler->size(fileToTransfer);
-	// Getting File Metadata 
-	std::string base_filename = fileToTransfer.substr(fileToTransfer.find_last_of("/\\") + 1);
-	_aesDecryptor->encryptFile(base_filename);
+	crc = calcCrc->calcCrc(_self->fileToSend);
+	fileUpload.header.payloadSize = _fileHandler->size(_self->fileToSend);
+	_aesDecryptor->encryptFile(_self->fileToSend);
 
 	// Getting size of encrypted file
-	std::string base_filename_encrypted = base_filename + ENCRYPTED_FILE_SUFFIX;
+	std::string base_filename_encrypted = _self->fileToSend + ENCRYPTED_FILE_SUFFIX;
 	fileUpload.payload.encryptedFileSize = _fileHandler->size(base_filename_encrypted);
 
-	strcpy_s(fileUpload.payload.filename, FILE_METADATA, base_filename.c_str()); //copy Filename
+	strcpy_s(fileUpload.payload.filename, FILE_METADATA, _self->fileToSend.c_str()); //copy Filename
 	
 	
-	uint8_t retries = INIT_VAL;
 	_fileHandler->open(base_filename_encrypted);
-	//read by chunks
+
 	while (retries < MAX_RETRIES) {
 		fileUpload.header.payloadSize = _fileHandler->readByChunks(fileUpload.payload.encrypteDataPacket, FILE_METADATA);
 
 		if (fileUpload.header.payloadSize == 0) {
 			_sock->recv(reinterpret_cast<char*>(&ResFileUpload), sizeof(ResFileUpload));
 			if (ResFileUpload.payload.crc != crc) {
-				RequestCRC* crcStatus = new RequestCRC(_self.id, CRC_AGAIN);
+				RequestCRC* crcStatus = new RequestCRC(_self->id, CRC_AGAIN);
 				_sock->send(reinterpret_cast<char*>(crcStatus), sizeof(RequestCRC));
 				retries++;
 				_fileHandler->open(base_filename_encrypted);
 			}
 			else {
-				RequestCRC* crcStatus = new RequestCRC(_self.id, CRC_OK);
+				RequestCRC* crcStatus = new RequestCRC(_self->id, CRC_OK);
 				_sock->send(reinterpret_cast<char*>(crcStatus), sizeof(RequestCRC));
 				break;
 			}
@@ -198,7 +295,7 @@ bool Client::uploadFile() {
 		}
 	}
 	if (retries == MAX_RETRIES) {
-		RequestCRC* crcStatus = new RequestCRC(_self.id, CRC_FAILED);
+		RequestCRC* crcStatus = new RequestCRC(_self->id, CRC_FAILED);
 		_sock->send(reinterpret_cast<char*>(crcStatus), sizeof(RequestCRC));
 		LOG_ERROR("Max retries reached, exiting...");
 		return false;

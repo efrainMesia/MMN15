@@ -2,10 +2,11 @@
 #include "protocol.h"
 #include "socket.h"
 #include "RSAWrapper.h"
-#include "Base64Wrapper.h"
 #include "AESWrapper.h"
 #include "FileHandler.h"
 #include "crc.h"
+#include <sstream>
+
 
 
 constexpr auto CLIENT_INFO = "me.info";
@@ -21,7 +22,8 @@ struct SClient {
 	bool pkeySet = false;
 	std::string symmKey;
 	bool symmKeySet = false;
-	SClient() : id(), username(""), pkey(""), symmKey("") {}
+	std::string fileToSend;
+	SClient() : id(), username(""), pkey(""), symmKey(""), fileToSend("") {}
 	
 	friend std::ostream& operator<<(std::ostream& os, const SClient& c)
 	{
@@ -32,6 +34,7 @@ struct SClient {
 		return os;
 	}
 };
+
 struct SMessage {
 	std::string username;
 	std::string content;
@@ -39,7 +42,7 @@ struct SMessage {
 
 class Client {
 private:
-	SClient _self;
+	SClient* _self;
 	RSAPrivateWrapper* _rsaDecryptor;
 	AESWrapper* _aesDecryptor;
 	FileHandler* _fileHandler;
@@ -48,6 +51,10 @@ public:
 	Socket* _sock;
 	Client();
 	~Client();
+
+	bool loadTransferInfo();
+	bool loadClientInfo();
+	bool writeClientInfo();
 	bool validateHeader(const ResponseHeader&, const EnumResponseCode);
 	bool registerClient(const std::string&);
 	bool registerPublicKey();
