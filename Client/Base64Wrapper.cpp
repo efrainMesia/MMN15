@@ -3,10 +3,10 @@
 
 std::string Base64Wrapper::encode(const std::string& str)
 {
-	std::string encoded;
+	std::string encoded = "";
 	CryptoPP::StringSource ss(str, true,
 		new CryptoPP::Base64Encoder(
-			new CryptoPP::StringSink(encoded)
+			new CryptoPP::StringSink(encoded),false
 		) // Base64Encoder
 	); // StringSource
 
@@ -15,7 +15,7 @@ std::string Base64Wrapper::encode(const std::string& str)
 
 std::string Base64Wrapper::decode(const std::string& str)
 {
-	std::string decoded;
+	std::string decoded = "";
 	CryptoPP::StringSource ss(str, true,
 		new CryptoPP::Base64Decoder(
 			new CryptoPP::StringSink(decoded)
