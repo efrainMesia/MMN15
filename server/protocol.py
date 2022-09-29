@@ -15,6 +15,8 @@ FILE_MAX_DATA_PACKET = 256
 FILE_PACKET_SIZE = 1
 KEY_SIZE = 160  # Convert 160 bytes to bits
 CRC_SIZE = 4
+AES_ENCRYPTED = 128
+
 
 # 16s- UUID, B- version, H- opcode, I-payload_size
 FORMAT_REQUEST_HEADER = f"<{UUID_SIZE}sBHI"

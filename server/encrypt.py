@@ -10,10 +10,14 @@ unpad = lambda s: s[: -ord(s[len(s) - 1 :])]
 
 class Encryptor:
     def __init__(
-        self, public_key=None, aes_key=Random.get_random_bytes(protocol.SYMM_KEY_SIZE)
+        self,
+        public_key=None,
+        aes_key=Random.get_random_bytes(protocol.SYMM_KEY_SIZE),
+        logger=None,
     ):
         self.public_key = public_key
         self.aes_key = aes_key
+        self.logger = logger
 
     def pad(self, message: str) -> str:
         """Adds padding to message to match length of AES block size
@@ -24,9 +28,11 @@ class Encryptor:
         Returns:
             str: message with padding
         """
+        self.logger.debug("Padding message")
         return message + b"\0" * (AES.block_size - len(message) % AES.block_size)
 
     def unpad(self, message):
+        self.logger.debug("Unpadding message")
         return message[: -ord(message[len(message) - 1 :])]
 
     def encrypt(self, message):
@@ -42,8 +48,8 @@ class Encryptor:
         return plaintext.rstrip(b"\0")
 
     def decrypt_file(self, path_in_file, path_out_file):
-        # TODO: change implementation
         try:
+            self.logger.info(f"Decrypting file {path_in_file}")
             with open(path_in_file, "rb") as in_file, open(
                 "path_out_file", "wb"
             ) as out_file:
@@ -58,7 +64,7 @@ class Encryptor:
             out_file.close()
             return True
         except Exception as e:
-            print(f"something went wrong :{e}")
+            self.logger.error(f"something went wrong :{e}")
         return False
 
     def encrypt_with_public_key(self, message):
@@ -66,4 +72,5 @@ class Encryptor:
         message_padded = self.pad(message)
         encryptor = PKCS1_OAEP.new(rsa_key)
         encrypted_msg = encryptor.encrypt(message_padded)
+        self.logger.info("Message has been encrypted with client's public Key")
         return encrypted_msg

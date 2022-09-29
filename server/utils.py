@@ -1,4 +1,5 @@
 import os
+import logging
 from pathlib import Path
 
 PARENT_DIR = r"D:\MMN15"
@@ -309,10 +310,12 @@ def create_dir(dir_name):
         return False
 
 
-def create_file(user_uuid: str, file_name: str):
+def create_file(user_uuid: str, file_name: str, open_file: bool = True):
     file_path = os.path.join(PARENT_DIR, user_uuid, file_name)
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    f = open(file_path, "wb")
+    f = None
+    if open_file:
+        f = open(file_path, "wb")
     return f, file_path
 
 
@@ -322,3 +325,23 @@ def get_crc32(file_path: str):
         while buf := fd.read(4096):
             digest.update(buf)
         return digest.digest()
+
+
+def create_logger():
+    # create logger
+    logger = logging.getLogger("simple_example")
+    logger.setLevel(logging.DEBUG)
+
+    # create console handler and set level to debug
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+
+    # create formatter
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+
+    # add formatter to ch
+    ch.setFormatter(formatter)
+
+    # add ch to logger
+    logger.addHandler(ch)
+    return logger
