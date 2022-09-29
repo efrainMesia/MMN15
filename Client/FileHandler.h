@@ -6,9 +6,6 @@
 #include <sys/stat.h>
 #include "utils.h"
 
-/* TODO: Change Write 
-   
-   */
 class FileHandler
 {
 public:
@@ -26,8 +23,9 @@ public:
 
     bool is_file_exist(const std::string&);
 
+    void close(bool write = false);
+
 private:
-    std::fstream* _fileStream;
     std::ifstream* _inFileStream;
     std::ofstream* _outFileStream;
 

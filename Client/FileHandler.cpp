@@ -160,4 +160,10 @@ bool FileHandler::is_file_exist(const std::string& fileName)
 	return (stat(fileName.c_str(), &buffer) == 0);
 }
 
+void FileHandler::close(bool write) {
+	if (write)
+		_outFileStream->close();
+	else
+		_inFileStream->close();
+}
 
