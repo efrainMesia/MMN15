@@ -3,7 +3,7 @@
 Socket::Socket()
 {
 	_connected = false;
-	this->sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	sock = INVALID_SOCKET;
 	int result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
 	if (result != 0) {
 		printf("Error: cannot initialize WinSock.\n");
@@ -18,7 +18,7 @@ Socket::~Socket() {
 
 bool Socket::connect(std::string endpoint, unsigned short int port) {
 	//Initialize socket
-	
+	this->sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (this->sock == INVALID_SOCKET) {
 		std::cerr << "Cant create socket " << WSAGetLastError() << std::endl;
 		WSACleanup();
