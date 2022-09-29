@@ -4,9 +4,11 @@ Client::Client()
 {
 	_self = new SClient();
 	_sock = new Socket();
-	_rsaDecryptor = new RSAPrivateWrapper();
+	_rsaDecryptor = nullptr;
 	_aesDecryptor = nullptr;
 	_fileHandler = new FileHandler();
+	_serverIP = "";
+	_port = INIT_VAL;
 }
 
 Client::~Client()
@@ -33,8 +35,14 @@ bool Client::loadTransferInfo() {
 	}
 	if (countDelim(buf,delimm) == 1) {
 		int pos = buf.find(":");
-		serverIP = buf.substr(0, pos);
+		_serverIP = buf.substr(0, pos);
 		port = buf.substr(pos+1);
+		if (!isNum(port)) {
+			LOG_ERROR("Server Port is not numeric");
+			return false;
+		}
+		_port = std::stoi(port);
+
 	}
 	else {
 		LOG_ERROR("Wrong syntax of server ip and port in transfer.info");
@@ -58,12 +66,14 @@ bool Client::loadTransferInfo() {
 		return false;
 	}
 	_self->fileToSend = buf;
+	_fileHandler->close();
 	return true;
 }
 
 bool Client::loadClientInfo()
 {
 	std::string buf = "";
+	std::string decoded = "";
 	//Open me.info
 	if (!_fileHandler->open(CLIENT_INFO)) {
 		LOG_ERROR("Unable to open file me.info");
@@ -80,28 +90,32 @@ bool Client::loadClientInfo()
 		return false;
 	}
 	_self->username = buf;
-
-
+	buf.clear();
 	// read line - client ID - base in 64
 	if (!_fileHandler->readLine(buf,false)) {
 		LOG_ERROR("Failed reading second line in me.info");
 		return false;
 	}
-	buf = decodeBase64(buf);
+
+	buf = Base64Wrapper::decode(buf);
 	if (buf.length() > CLIENT_ID_SIZE) {
 		LOG_ERROR("ID size its too long");
 		return false;
 	}
 	LOG("UUID: " + buf);
-	strcpy_s(_self->id.uuid, CLIENT_ID_SIZE, buf.c_str());
-
+	memcpy_s(_self->id.uuid, CLIENT_ID_SIZE, buf.c_str(), CLIENT_ID_SIZE);
+	buf.clear();
 	// read line - Public Key
 	if (!_fileHandler->readLine(buf,false)) {
 		LOG_ERROR("Failed reading third line in me.info");
 		return false;
 	}
-	_self->pkey = buf;
+	_rsaDecryptor = new RSAPrivateWrapper(buf.c_str(), PUBLIC_KEY_SIZE);
+	_self->pkey = _rsaDecryptor->getPublicKey();
 	_self->pkeySet = true;
+
+	//closing file
+	_fileHandler->close();
 
 	return true;
 }
@@ -120,22 +134,27 @@ bool Client::writeClientInfo() {
 		LOG_ERROR("Failed writing to file me.info");
 		return false;
 	}
-
+	//TODO: issue copying the uuid to buff
+	//buf = std::string(_self->id.uuid, CLIENT_ID_SIZE);
 	//writing UUID
-	buf = encodeBase64(_self->id.uuid);
-	LOG("UUID in Base64" + buf);
+	buf = Base64Wrapper::encode(std::string(_self->id.uuid, CLIENT_ID_SIZE));
+	LOG("UUID in Base64: " + buf);
 	if (!_fileHandler->writeLine(buf)) {
 		LOG_ERROR("Failed writing UUID to file me.info");
 		return false;
 	}
 
 	//writing publicKey
-	buf = encodeBase64(_self->pkey);
+	std::string test = _rsaDecryptor->getPrivateKey();
+	buf = Base64Wrapper::encode(_rsaDecryptor->getPrivateKey());
 	LOG("Private Key in Base64" + buf);
 	if (!_fileHandler->writeLine(buf)) {
 		LOG_ERROR("Failed writing private Key to file me.info");
 		return false;
 	}
+
+	_fileHandler->close(true);
+
 	return true;
 }
 
@@ -170,10 +189,14 @@ bool Client::registerClient(const std::string& username)
 {
 	RequestReg requestReg;
 	ResponseReg responseReg;
+	if (!_sock->connect(_serverIP, _port)) {
+		LOG_ERROR("Failed connecting to server");
+		return false;
+	}
 
 	// Create request data
-	strcpy_s(requestReg.payload.name, CLIENT_NAME_SIZE, username.c_str());
-	requestReg.header.payloadSize = username.length();
+	strcpy_s(requestReg.payload.name, CLIENT_NAME_SIZE, _self->username.c_str());
+	requestReg.header.payloadSize = _self->username.length();
 
 	//send the data and receive response
  	if (!_sock->sendReceive(reinterpret_cast<char*>(&requestReg), sizeof(requestReg),
@@ -188,19 +211,17 @@ bool Client::registerClient(const std::string& username)
 	
 	//setting the Client object
 	_self->id = responseReg.payload;
-	_self->username = username;
 	
 	std::cout << _self << std::endl;
 	return true;
 }
 
 
-
-
 bool Client::registerPublicKey()
 {
 	RequestPublicKey requestPKey(_self->id);
 	ResponseSymmKey responseRegPKey;
+
 
 	if (!_self->pkeySet) {
 		if (!setPublicKey()) {
@@ -209,12 +230,12 @@ bool Client::registerPublicKey()
 		}
 	}
 
-	
-	//copy the pkey to buffer before sending it
-	int i;
-	for (i = 0; i < sizeof(requestPKey.payload.publicKey); i++) {
-		requestPKey.payload.publicKey[i] = _self->pkey[i];
+	if (!_sock->connect(_serverIP, _port)) {
+		LOG_ERROR("Failed connecting to server");
+		return false;
 	}
+	
+	memcpy_s(requestPKey.payload.publicKey, sizeof(PublicKey), _self->pkey.c_str(), _self->pkey.length());
 	requestPKey.header.payloadSize = PUBLIC_KEY_SIZE;
 
 	if (!_sock->sendReceive(reinterpret_cast<char*>(&requestPKey), sizeof(requestPKey),
@@ -236,8 +257,11 @@ bool Client::registerPublicKey()
 bool Client::setPublicKey()
 {
 	// 1. get the public key
+	if (!_self->pkeySet) {
+		_rsaDecryptor = new RSAPrivateWrapper();
+	}
 	std::string pubkey = _rsaDecryptor->getPublicKey();
-	
+
 	if (pubkey.size() != PUBLIC_KEY_SIZE)
 	{
 		LOG_ERROR("Invalid public key length!");

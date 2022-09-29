@@ -35,10 +35,6 @@ struct SClient {
 	}
 };
 
-struct SMessage {
-	std::string username;
-	std::string content;
-};
 
 class Client {
 private:
@@ -46,6 +42,8 @@ private:
 	RSAPrivateWrapper* _rsaDecryptor;
 	AESWrapper* _aesDecryptor;
 	FileHandler* _fileHandler;
+	std::string _serverIP;
+	unsigned short int _port;
 
 public:
 	Socket* _sock;
