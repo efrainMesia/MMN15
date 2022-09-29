@@ -1,5 +1,6 @@
 import sqlite3
 import uuid
+from datetime import datetime
 from sqlite3 import Error
 from unittest import result
 import struct
@@ -9,12 +10,15 @@ TABLE_FILES = "files"
 
 
 class Client:
-    def __init__(self, uuid, name, public_key, last_seen, aes_key) -> None:
+    def __init__(self, uuid, name, public_key, aes_key) -> None:
         self.uuid = uuid
         self.name = name
         self.public_key = public_key
-        self.last_seen = last_seen
+        self.last_seen = str(datetime.now())
         self.aes_key = aes_key
+
+    def __str__(self) -> str:
+        return f"UUID: {str(self.uuid)}\n\tUsername: {self.name}\n\tPublicKey: {self.public_key}\n\tAesKey: {self.aes_key}\n\tLastSeen: {self.last_seen}"
 
 
 class Database:
@@ -29,13 +33,12 @@ class Database:
         try:
             sqlite3.register_adapter(uuid.UUID, lambda u: u.bytes_le)
             sqlite3.register_converter("GUID", lambda b: uuid.UUID(bytes_le=b))
-            # self.logger.info("Intizaliting connection to Databate")
-            print(self.filename)
+            self.logger.info(f"Intizaliting connection to Databate: {self.filename}")
             self.sql_conn = sqlite3.connect(self.filename)
-            # self.logger.info(f"SQLite3 version -> {sqlite3.version}")
+            self.logger.info(f"SQLite3 version -> {sqlite3.version}")
 
         except Error as e:
-            # self.logger.error(e)
+            self.logger.error(e)
             raise (e)
 
     def init_tables(self):
@@ -53,16 +56,16 @@ class Database:
                                     verified bool
                                 );"""
         if self.sql_conn is not None:
-            # self.logger.info("Creating Tables")
+            self.logger.info("Creating Tables")
             try:
                 cursor = self.sql_conn.cursor()
                 cursor.execute(sql_create_clients_table)
                 cursor.execute(sql_create_files_table)
             except Error as e:
-                # self.logger.error(e)
+                self.logger.error(e)
                 raise (e)
         else:
-            print("Error! cannot create the database connection.")
+            self.logger.error("Error! cannot create the database connection.")
             # self.logger.info("Tables already Exists")
 
     def execute_query(self, query, args, commit=False, get_last_row=False):
@@ -79,7 +82,7 @@ class Database:
             if get_last_row:
                 results = cursor.lastrowid
         except Exception as e:
-            print(e)
+            self.logger.error(e)
         return results
 
     def client_username_exists(self, username):
@@ -92,6 +95,7 @@ class Database:
             f"SELECT * FROM {TABLE_CLIENTS} where Name = ?", [username]
         )
         if not results:
+            self.logger.info(f"{username} doesnt exist in DB")
             return False
         return len(results) > 0
 
@@ -105,6 +109,7 @@ class Database:
             f"SELECT * FROM {TABLE_CLIENTS} WHERE GUID = ?", [uuid]
         )
         if not results:
+            self.logger.info(f"{uuid} doesnt exist in DB")
             return False
         return len(results) > 0
 
@@ -114,11 +119,15 @@ class Database:
         Args:
             uuid (str): UUID of user
         """
-        results = self.execute_query(
+        result = self.execute_query(
             f"SELECT publicKey FROM {TABLE_CLIENTS} WHERE id = ?", [uuid]
         )
-        print(f"results from db {results}")
-        return results
+
+        if result:
+            self.logger.info(f"{uuid}'s public Key has been retrieved from DB")
+            return result[0][0]
+        else:
+            return False
 
     def update_public_key(self, uuid: str, public_key):
         """Updates the User's public key
@@ -147,18 +156,30 @@ class Database:
         return result
 
     def get_aes_key(self, uuid: str):
+        """_summary_
+
+        Args:
+            uuid (str): Client uuid
+
+        """
         result = self.execute_query(
             f"SELECT aesKey FROM {TABLE_CLIENTS} WHERE id = ?", [uuid]
         )
         if result:
+            self.logger.info(f"{uuid}'s AES Key has been retrieved from DB")
             return result[0][0]
         else:
             return False
 
-    def store_client(self, client: Client):
-        print(type(client.uuid))
-        print(client.uuid)
-        print(str(client.uuid))
+    def store_client(self, client: Client) -> bool:
+        """Saves the client into the DB
+
+        Args:
+            client (Client): New Client
+
+        Returns:
+            bool: True if succeded
+        """
         return self.execute_query(
             f"INSERT INTO {TABLE_CLIENTS} VALUES (?, ?, ?, ?, ?)",
             [
