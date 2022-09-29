@@ -13,12 +13,12 @@
 int main() {
 	std::string ipAddress = "127.0.0.1";
 	Client* newClient = new Client();
-
-	newClient->_sock->connect(ipAddress, DEFAULT_PORT);
+	newClient->loadTransferInfo();
 	newClient->registerClient("Testingthismdf");
-	newClient->_sock->connect(ipAddress, DEFAULT_PORT);
 	newClient->registerPublicKey();
-	newClient->_sock->connect(ipAddress, DEFAULT_PORT);
-	newClient->uploadFile();
+	newClient->writeClientInfo();
+
+	//newClient->_sock->connect(ipAddress, DEFAULT_PORT);
+	//newClient->uploadFile();
 	return 0;
 }
