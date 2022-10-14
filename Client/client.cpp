@@ -24,13 +24,13 @@ bool Client::loadTransferInfo() {
 
 	//open file - transfer.info
 	if (!_fileHandler->open(TRANSFER_INFO)) {
-		LOG_ERROR("Unable to open file transfer.info");
+		LOG_ERROR("Unable to open file transfer.info.");
 	}
 	LOG("Parsing transfer.info");
 
 	//readline - ip address and port
 	if (!_fileHandler->readLine(buf,true)) {
-		LOG_ERROR("Failed reading from file transfer.info");
+		LOG_ERROR("Failed reading from file transfer.info.");
 		return false;
 	}
 	if (countDelim(buf,delimm) == 1) {
@@ -38,35 +38,44 @@ bool Client::loadTransferInfo() {
 		_serverIP = buf.substr(0, pos);
 		port = buf.substr(pos+1);
 		if (!isNum(port)) {
-			LOG_ERROR("Server Port is not numeric");
+			LOG_ERROR("Server Port is not numeric.");
 			return false;
 		}
 		_port = std::stoi(port);
 
 	}
 	else {
-		LOG_ERROR("Wrong syntax of server ip and port in transfer.info");
+		LOG_ERROR("Wrong syntax of server ip and port in transfer.info.");
 		return false;
 	}
-	
+	buf.clear();
+
 	//readline - client name
 	if (!_fileHandler->readLine(buf,true)) {
-		LOG_ERROR("Failed reading second line in me.info");
+		LOG_ERROR("Failed reading second line in me.info.");
 		return false;
 	}
-	if (buf.length() > CLIENT_NAME_SIZE || !isAlNum(buf)) {
-		LOG_ERROR("Username type is not allow, make sure less than 128 and alphanumeric");
-		return false;
+	if (!_fileHandler->is_file_exist(CLIENT_INFO)) {
+		if (buf.length() > CLIENT_NAME_SIZE || !isAlNum(buf)) {
+			LOG_ERROR("Username type is not allow, make sure less than 128 and alphanumeric.");
+			return false;
+		}
+		_self->username = buf;
 	}
-	_self->username = buf;
+	buf.clear();
 
 	//read line - file name
 	if (!_fileHandler->readLine(buf,true)) {
-		LOG_ERROR("Failed reading third line in me.info");
+		LOG_ERROR("Failed reading third line in me.info.");
 		return false;
+	}
+	if (!_fileHandler->is_file_exist(buf)) {
+		LOG_ERROR("File " + buf + " does not exist.");
 	}
 	_self->fileToSend = buf;
 	_fileHandler->close();
+	buf.clear();
+
 	return true;
 }
 
@@ -76,30 +85,30 @@ bool Client::loadClientInfo()
 	std::string decoded = "";
 	//Open me.info
 	if (!_fileHandler->open(CLIENT_INFO)) {
-		LOG_ERROR("Unable to open file me.info");
+		LOG_ERROR("Unable to open file me.info.");
 		return false;
 	}
 
 	//read line - username
 	if (!_fileHandler->readLine(buf,false)) {
-		LOG_ERROR("Failed reading from file me.info");
+		LOG_ERROR("Failed reading from file me.info.");
 		return false;
 	}
 	if (buf.length() > CLIENT_NAME_SIZE || !isAlNum(buf)) {
-		LOG_ERROR("Username length over 128");
+		LOG_ERROR("Username length over 128.");
 		return false;
 	}
 	_self->username = buf;
 	buf.clear();
 	// read line - client ID - base in 64
 	if (!_fileHandler->readLine(buf,false)) {
-		LOG_ERROR("Failed reading second line in me.info");
+		LOG_ERROR("Failed reading second line in me.info.");
 		return false;
 	}
 
-	buf = Base64Wrapper::decode(buf);
+	buf = ::unhexify(buf);
 	if (buf.length() > CLIENT_ID_SIZE) {
-		LOG_ERROR("ID size its too long");
+		LOG_ERROR("ID size its too long.");
 		return false;
 	}
 	LOG("UUID: " + buf);
@@ -107,10 +116,11 @@ bool Client::loadClientInfo()
 	buf.clear();
 	// read line - Public Key
 	if (!_fileHandler->readLine(buf,false)) {
-		LOG_ERROR("Failed reading third line in me.info");
+		LOG_ERROR("Failed reading third line in me.info.");
 		return false;
 	}
-	_rsaDecryptor = new RSAPrivateWrapper(buf.c_str(), PUBLIC_KEY_SIZE);
+	buf = Base64Wrapper::decode(buf);
+	_rsaDecryptor = new RSAPrivateWrapper(buf);
 	_self->pkey = _rsaDecryptor->getPublicKey();
 	_self->pkeySet = true;
 
@@ -125,7 +135,7 @@ bool Client::writeClientInfo() {
 	std::string buf = "";
 	//open file - transfer.info for writing
 	if (!_fileHandler->open(CLIENT_INFO, true)) {
-		LOG_ERROR("Unable to open file me.info");
+		LOG_ERROR("Unable to open file me.info.");
 		return false;
 	}
 
@@ -134,11 +144,10 @@ bool Client::writeClientInfo() {
 		LOG_ERROR("Failed writing to file me.info");
 		return false;
 	}
-	//TODO: issue copying the uuid to buff
-	//buf = std::string(_self->id.uuid, CLIENT_ID_SIZE);
-	//writing UUID
-	buf = Base64Wrapper::encode(std::string(_self->id.uuid, CLIENT_ID_SIZE));
-	LOG("UUID in Base64: " + buf);
+
+
+	buf = ::hexify(_self->id.uuid, CLIENT_ID_SIZE);
+	LOG("UUID in Hex: " + buf);
 	if (!_fileHandler->writeLine(buf)) {
 		LOG_ERROR("Failed writing UUID to file me.info");
 		return false;
@@ -147,7 +156,7 @@ bool Client::writeClientInfo() {
 	//writing publicKey
 	std::string test = _rsaDecryptor->getPrivateKey();
 	buf = Base64Wrapper::encode(_rsaDecryptor->getPrivateKey());
-	LOG("Private Key in Base64" + buf);
+	LOG("Private Key in Base64: " + buf);
 	if (!_fileHandler->writeLine(buf)) {
 		LOG_ERROR("Failed writing private Key to file me.info");
 		return false;
@@ -163,9 +172,11 @@ bool Client::validateHeader(const ResponseHeader& header, const EnumResponseCode
 {
 	if (header.opcode == RESPONSE_ERROR) {
 		LOG_ERROR("Got error from opcode");
+		return false;
 	}
 	if (header.opcode != expected) {
-		LOG_ERROR("Unexpected opcode");
+		LOG_ERROR("Unexpected opcode" + header.opcode);
+		return false;
 	}
 	fsize expectedSize = INIT_VAL;
 	switch (header.opcode) {
