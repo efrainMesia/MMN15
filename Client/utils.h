@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <filesystem>
 #include <iostream>
+#include <iomanip>
 #include <zlib.h>
 #include "Base64Wrapper.h"
+#include <boost/algorithm/hex.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 
 
@@ -39,6 +42,42 @@ static inline void trim(std::string& s) {
     ltrim(s);
     rtrim(s);
 }
+
+static std::string hexify(const char* buffer, unsigned int length)
+{
+    if (length == 0 || buffer == nullptr)
+        return "";
+    const std::string byteString(buffer, buffer + length);
+    if (byteString.empty())
+        return "";
+    try
+    {
+        return boost::algorithm::hex(byteString);
+    }
+    catch (...)
+    {
+        return "";
+    }
+}
+
+/**
+ * Try to convert hex string to bytes string.
+ * Return empty string upon failure.
+ */
+static std::string unhexify(const std::string& hexString)
+{
+    if (hexString.empty())
+        return "";
+    try
+    {
+        return boost::algorithm::unhex(hexString);
+    }
+    catch (...)
+    {
+        return "";
+    }
+}
+
 
 static bool isAlNum(std::string& s) {
     //check if its only alphanumeric
