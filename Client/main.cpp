@@ -11,14 +11,7 @@
 #define DEFAULT_PORT 7777
 
 int main() {
-	std::string ipAddress = "127.0.0.1";
 	Client* newClient = new Client();
-	newClient->loadTransferInfo();
-	newClient->registerClient("Testingthismdf");
-	newClient->registerPublicKey();
-	newClient->writeClientInfo();
-
-	//newClient->_sock->connect(ipAddress, DEFAULT_PORT);
-	//newClient->uploadFile();
+	newClient->main();
 	return 0;
 }
