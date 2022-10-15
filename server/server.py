@@ -1,4 +1,3 @@
-import pkgutil
 import socket
 import uuid
 import selectors
@@ -8,17 +7,19 @@ import encrypt
 import utils
 from struct import *
 
-DATABASE = ".\server.db"
+DATABASE = "server.db"
+PORT_INFO = "port.info"
+HOST = '0.0.0.0'
 PACKET_SIZE = 1024
 MAX_QUEUED_CONN = 5
 IS_BLOCKING = False
 
 
 class Server:
-    def __init__(self, host, port):
-        self.host = host
-        self.port = port
+    def __init__(self):
         self.logger = utils.create_logger()
+        self.host = HOST
+        self.port = self.__load_config()
         self.sel = selectors.DefaultSelector()
         self.database = database.Database(DATABASE, self.logger)
         self.handle_request = {
@@ -26,6 +27,18 @@ class Server:
             protocol.EnumRequestCode.REQUEST_PAIRING.value: self.handle_public_key_request,
             protocol.EnumRequestCode.REQUEST_UPLOAD.value: self.handle_file_upload_request,
         }
+
+    def __load_config(self):
+        with open(PORT_INFO,'r') as port_info:
+            port_info_data = port_info.readlines()
+            port_info_data = [line.strip() for line in port_info_data if line!='\n']
+            if len(port_info_data) > 2 or len(port_info_data) == 0:
+                self.logger.error(f"Too many lines in {PORT_INFO}")
+                exit(1)
+            if not port_info_data[0].isnumeric():
+                self.logger.error(f"Port is not numeric in {PORT_INFO}")
+                exit(1)
+            return int(port_info_data[0])
 
     def accept(self, sock, mask):
         """Accept a connection from client"""
@@ -39,10 +52,8 @@ class Server:
         if data:
             request_header = protocol.RequestHeader()
             success = False
-            print(data)
-            print(f"length of data -> {len(data)}")
             if not request_header.unpack(data):
-                print("Failed parsing request data header")
+                self.logger.error("Failed parsing request data header")
             else:
                 # checking if code exists
                 if request_header.code in self.handle_request.keys():
@@ -94,7 +105,7 @@ class Server:
             sock.setblocking(IS_BLOCKING)
             self.sel.register(sock, selectors.EVENT_READ, self.accept)
         except Exception as e:
-            self.last_err = e
+            self.logger.exception(f"Failed openning socket : {e}")
             return False
         self.logger.info(f"Server is listening for connection on port {self.port}")
         while True:
@@ -105,6 +116,12 @@ class Server:
                     callback(key.fileobj, mask)
             except Exception as e:
                 print(f"Server main loop exception: {e}")
+
+    def __create_uuid(self, table_check: str) -> uuid.UUID:
+        new_uuid = uuid.uuid4()
+        while self.database.id_exists(new_uuid, table_check):
+            new_uuid = uuid.uuid4()
+        return new_uuid
 
     def handle_reg_request(self, conn, data, header):
         """Register a new user and save to db"""
@@ -120,15 +137,17 @@ class Server:
             self.logger.error("Username already exists")
             return False
         # aes key doesnt exist on register
-        client = database.Client(uuid.uuid4(), request.name, request.key, aes_key="")
+        client = database.Client(self.__create_uuid(database.TABLE_CLIENTS), request.name, request.key, aes_key="")
         if not self.database.store_client(client):
             return False
         self.logger.info(f"New Client has been registered:\n\t{client.__str__()}")
         response.uuid = client.uuid.bytes_le
+        self.logger.debug(f"uuid in bytes --> {response.uuid}")
         response.header.payload_size = protocol.UUID_SIZE
         return self.write(conn, response.pack())
 
-    def handle_public_key_request(self, conn, data, header) -> bool:
+
+    def handle_public_key_request(self, conn:socket, data:list, header:protocol.RequestHeader) -> bool:
         """Receive public key from user, saves it into client table.
             Generates a new AES key saves it into DB then encrypt it with client public key and sends it to client.
         Args:
@@ -145,9 +164,9 @@ class Server:
             self.logger.info("Public key request, failed to parse")
         pKey = self.database.get_public_key(request.header.uuid)
         # No public key set in user
-        if not self.database.update_public_key(
-            uuid=request.header.uuid, public_key=request.key
-        ):
+        if pKey and pKey != request.key:
+            return False
+        if not self.database.update_public_key(uuid=request.header.uuid, public_key=request.key):
             return False
         encryptor = encrypt.Encryptor(request.key, logger=self.logger)
         aes_key_encrypted = encryptor.encrypt_with_public_key(encryptor.aes_key)
@@ -160,9 +179,11 @@ class Server:
 
     def handle_file_upload_request(self, conn, data, header):
         """Responds the file handler"""
-        # TODO: add file to file db and create function headervalidation
+        # TODO: create function headervalidation
         request = protocol.FileUploadRequest(header)
         response = protocol.ResponseHeader(protocol.INIT_VAL)
+        retries = 0
+
         if not request.unpack(data):
             self.logger.error("Failed to parse file upload request")
             return False
@@ -172,17 +193,12 @@ class Server:
         if not aes_key:
             return False
         encryptor = encrypt.Encryptor(aes_key=aes_key, logger=self.logger)
-        retries = 0
+
         while retries < protocol.MAX_RETRIES:
             self.logger.info(f"Number of retries: {retries}")
-            self.logger.info(
-                f"File upload for client {str(request.header.uuid)} has been initialized"
-            )
-            (
-                get_file_success,
-                file_encrypted_path,
-                file_decrypted_path,
-            ) = self.get_user_file(conn, data, header)
+            self.logger.info(f"File upload for client {str(request.header.uuid)} has been initialized")
+            get_file_success, file_encrypted_path, file_decrypted_path = self.get_user_file(conn, data, header)
+            new_file = database.File(request.header.uuid, file_decrypted_path, False)
 
             if not get_file_success:
                 self.logger.info("Getting file from client has failed... exiting")
@@ -194,6 +210,7 @@ class Server:
             if response_code == protocol.EnumRequestCode.CRC_OK.value:
                 response.code = protocol.EnumResponseCode.RESPONSE_OK.value
                 self.write(conn, response.pack())
+                new_file.verified = True
                 break
             retries += 1
             if retries:
@@ -209,11 +226,14 @@ class Server:
                     return False
 
         if header.code == protocol.EnumRequestCode.CRC_FAILED.value:
+            new_file.verified = False
             self.logger.error("Max retries has been reached...")
             return False
+        if not self.database.store_file(new_file):
+            self.logger.error("Failed saving file data into DB")
         return True
 
-    def get_user_file(self, conn, data, header):
+    def get_user_file(self, conn, data, header) -> tuple:
         try:
             request = protocol.FileUploadRequest(header)
             if not request.unpack(data):
