@@ -79,7 +79,7 @@ uint32_t FileHandler::readByChunks(char* dest,const size_t bytes) const
 	}
 	catch (...)
 	{
-		std::cerr << "Error: Couldnt read from file" << std::endl;
+		LOG_ERROR("Error: Couldnt read from file");
 		return 0;
 	}
 }
