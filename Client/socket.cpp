@@ -6,7 +6,7 @@ Socket::Socket()
 	sock = INVALID_SOCKET;
 	int result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
 	if (result != 0) {
-		printf("Error: cannot initialize WinSock.\n");
+		LOG_ERROR("Error: cannot initialize WinSock");
 		WSACleanup();
 	}
 
@@ -20,7 +20,7 @@ bool Socket::connect(std::string endpoint, unsigned short int port) {
 	//Initialize socket
 	this->sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (this->sock == INVALID_SOCKET) {
-		std::cerr << "Cant create socket " << WSAGetLastError() << std::endl;
+		LOG_ERROR("Cant create socket " + WSAGetLastError());
 		WSACleanup();
 		return false;
 	}
@@ -33,7 +33,7 @@ bool Socket::connect(std::string endpoint, unsigned short int port) {
 	//Connect to server
 	int connResult = ::connect(this->sock, (sockaddr*)&hint, sizeof(hint));
 	if (connResult == SOCKET_ERROR) {
-		std::cerr << "Cant connect to server " << WSAGetLastError() << std::endl;
+		LOG_ERROR("Cant connect to server " + WSAGetLastError());
 		closesocket(sock);
 		WSACleanup();
 		return false;
@@ -49,7 +49,7 @@ int Socket::send(char* data, int numberOfBytes) {
 		WSACleanup();
 		return -1;
 	}
- 	std::cout << status;
+ 	//std::cout << status;
 	return status;
 
 }
@@ -57,11 +57,11 @@ int Socket::send(char* data, int numberOfBytes) {
 int Socket::recv(char* buf, int numberOfBytes){
 	int result = ::recv(this->sock, buf, numberOfBytes, 0);
 	if (result == 0) {
-		std::cout << "Error trying to read but socket is closed" << std::endl;
+		LOG_ERROR("Error trying to read but socket is closed");
 		return 0;
 	}
 	else if (result < 0) {
-		std::cout << "Error: cannot read from socket"<< WSAGetLastError() << std::endl;
+		LOG_ERROR("Error: cannot read from socket" + WSAGetLastError());
 	}
 	return result;
 }
