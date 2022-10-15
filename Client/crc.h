@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "utils.h"
 #include "FileHandler.h"
 class CRC {
 private:
