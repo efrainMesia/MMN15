@@ -9,12 +9,7 @@ unpad = lambda s: s[: -ord(s[len(s) - 1 :])]
 
 
 class Encryptor:
-    def __init__(
-        self,
-        public_key=None,
-        aes_key=Random.get_random_bytes(protocol.SYMM_KEY_SIZE),
-        logger=None,
-    ):
+    def __init__(self, public_key=None, aes_key=Random.get_random_bytes(protocol.SYMM_KEY_SIZE), logger=None):
         self.public_key = public_key
         self.aes_key = aes_key
         self.logger = logger
@@ -51,7 +46,7 @@ class Encryptor:
         try:
             self.logger.info(f"Decrypting file {path_in_file}")
             with open(path_in_file, "rb") as in_file, open(
-                "path_out_file", "wb"
+                path_out_file, "wb"
             ) as out_file:
                 iv = b"\0" * 16
                 cipher = AES.new(self.aes_key, AES.MODE_CBC, iv)
