@@ -78,7 +78,13 @@ static std::string unhexify(const std::string& hexString)
     }
 }
 
-
+static bool isEmpty(char* arr, int length) {
+    for (size_t i = 0; i < length; i++) {
+        if (arr[i] != '\0')
+            return false;
+    }
+    return true;
+}
 static bool isAlNum(std::string& s) {
     //check if its only alphanumeric
     for (auto ch : s) {
