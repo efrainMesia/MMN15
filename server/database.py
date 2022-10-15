@@ -1,4 +1,5 @@
 import sqlite3
+import os
 import uuid
 from datetime import datetime
 from sqlite3 import Error
@@ -21,6 +22,14 @@ class Client:
         return f"UUID: {str(self.uuid)}\n\tUsername: {self.name}\n\tPublicKey: {self.public_key}\n\tAesKey: {self.aes_key}\n\tLastSeen: {self.last_seen}"
 
 
+class File:
+    def __init__(self, uuid:uuid.UUID, file_path:str, verified:bool) -> None:
+        self.uuid = uuid
+        self.file_name = os.path.basename(file_path)
+        self.path_name = os.path.dirname(file_path)
+        self.verified = verified
+
+
 class Database:
     def __init__(self, filename, logger) -> None:
         self.filename = filename
@@ -29,7 +38,7 @@ class Database:
 
     def create_connection(self):
         """Create a database connection to SQLite database"""
-
+        # TODO: create trigger  that updates Last seen
         try:
             sqlite3.register_adapter(uuid.UUID, lambda u: u.bytes_le)
             sqlite3.register_converter("GUID", lambda b: uuid.UUID(bytes_le=b))
@@ -99,15 +108,13 @@ class Database:
             return False
         return len(results) > 0
 
-    def client_id_exists(self, uuid):
+    def id_exists(self, uuid, table):
         """Check if user UUID exists in database
 
         Args:
             uuid (str): UUID of user
         """
-        results = self.execute_query(
-            f"SELECT * FROM {TABLE_CLIENTS} WHERE GUID = ?", [uuid]
-        )
+        results = self.execute_query(f"SELECT * FROM {table} WHERE id = ?", [uuid])
         if not results:
             self.logger.info(f"{uuid} doesnt exist in DB")
             return False
@@ -188,6 +195,18 @@ class Database:
                 client.public_key,
                 client.last_seen,
                 client.aes_key,
+            ],
+            True,
+        )
+
+    def store_file(self,file:File) -> bool:
+        return self.execute_query(
+            f"INSERT INTO {TABLE_FILES} VALUES (?, ?, ?, ?)",
+            [   
+                file.uuid,
+                file.file_name,
+                file.path_name,
+                file.verified
             ],
             True,
         )
