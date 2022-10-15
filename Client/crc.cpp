@@ -102,7 +102,6 @@ uint32_t CRC::calcCrc(std::string filePath)
 		this->update(buf, extracted);
 	}
 	uint32_t crc = digest();
-	std::cout << crc << std::endl;
 	return crc;
 }
 
