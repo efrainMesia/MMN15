@@ -1,9 +1,9 @@
 import sqlite3
 import os
 import uuid
+import protocol
 from datetime import datetime
 from sqlite3 import Error
-from unittest import result
 import struct
 
 TABLE_CLIENTS = "clients"
@@ -22,7 +22,7 @@ class Client:
         return f"UUID: {str(self.uuid)}\n\tUsername: {self.name}\n\tPublicKey: {self.public_key}\n\tAesKey: {self.aes_key}\n\tLastSeen: {self.last_seen}"
 
 
-class File:
+class File_DB:
     def __init__(self, uuid:uuid.UUID, file_path:str, verified:bool) -> None:
         self.uuid = uuid
         self.file_name = os.path.basename(file_path)
@@ -35,6 +35,7 @@ class Database:
         self.filename = filename
         self.sql_conn = None
         self.logger = logger
+        self.cursor = None
 
     def create_connection(self):
         """Create a database connection to SQLite database"""
@@ -43,9 +44,10 @@ class Database:
             sqlite3.register_adapter(uuid.UUID, lambda u: u.bytes_le)
             sqlite3.register_converter("GUID", lambda b: uuid.UUID(bytes_le=b))
             self.logger.info(f"Intizaliting connection to Databate: {self.filename}")
-            self.sql_conn = sqlite3.connect(self.filename)
+            self.sql_conn = sqlite3.connect(self.filename, check_same_thread=False)
             self.logger.info(f"SQLite3 version -> {sqlite3.version}")
-
+            if self.sql_conn is not None:
+                self.cursor = self.sql_conn.cursor()
         except Error as e:
             self.logger.error(e)
             raise (e)
@@ -67,9 +69,8 @@ class Database:
         if self.sql_conn is not None:
             self.logger.info("Creating Tables")
             try:
-                cursor = self.sql_conn.cursor()
-                cursor.execute(sql_create_clients_table)
-                cursor.execute(sql_create_files_table)
+                self.cursor.execute(sql_create_clients_table)
+                self.cursor.execute(sql_create_files_table)
             except Error as e:
                 self.logger.error(e)
                 raise (e)
@@ -81,15 +82,14 @@ class Database:
         """Given an query and args, execute query, and return the results."""
         results = None
         try:
-            cursor = self.sql_conn.cursor()
-            cursor.execute(query, args)
+            self.cursor.execute(query, args)
             if commit:
                 self.sql_conn.commit()
                 results = True
             else:
-                results = cursor.fetchall()
+                results = self.cursor.fetchall()
             if get_last_row:
-                results = cursor.lastrowid
+                results = self.cursor.lastrowid
         except Exception as e:
             self.logger.error(e)
         return results
@@ -198,15 +198,36 @@ class Database:
             ],
             True,
         )
-
-    def store_file(self,file:File) -> bool:
+    def update_last_seen(self, client_header:protocol.RegRequest) -> bool:
         return self.execute_query(
-            f"INSERT INTO {TABLE_FILES} VALUES (?, ?, ?, ?)",
-            [   
-                file.uuid,
-                file.file_name,
-                file.path_name,
-                file.verified
+            f"UPDATE {TABLE_CLIENTS} SET lastSeen=? WHERE id =? ",
+            [
+                str(datetime.now()),
+                client_header.uuid
             ],
-            True,
+            True
         )
+    def store_file(self,file:File_DB) -> bool:
+        self.logger.info(f"Updating file entry for {file.uuid}")
+        if self.id_exists(file.uuid,TABLE_FILES):
+            return self.execute_query(
+                f"UPDATE {TABLE_FILES} SET fileName=?,pathName=?,verified=? WHERE id =? ",
+                [
+                    file.file_name,
+                    file.path_name,
+                    file.verified,
+                    file.uuid
+                ],
+                True
+            )
+        else:
+            return self.execute_query(
+                f"INSERT INTO {TABLE_FILES} VALUES (?, ?, ?, ?)",
+                [   
+                    file.uuid,
+                    file.file_name,
+                    file.path_name,
+                    file.verified
+                ],
+                True,
+            )
