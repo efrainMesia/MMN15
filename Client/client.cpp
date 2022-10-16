@@ -302,6 +302,7 @@ bool Client::uploadFile() {
 	uint32_t crc = INIT_VAL;
 	uint8_t retries = INIT_VAL;
 
+	LOG("Upload file procudure has started");
 	LOG("File to send: " + _self->fileToSend);
 	crc = calcCrc->calcCrc(_self->fileToSend);
 
@@ -319,10 +320,9 @@ bool Client::uploadFile() {
 		LOG_ERROR("Failed connecting to server");
 		return false;
 	}
-	
+	LOG("Start sending file...");
 	while (retries < MAX_RETRIES) {
-		fileUpload->header.payloadSize = _fileHandler->readByChunks(fileUpload->payload.encrypteDataPacket, FILE_METADATA);
-
+		fileUpload->header.payloadSize = _fileHandler->readByChunks(fileUpload->payload.encrypteDataPacket, 742);
 		if (fileUpload->header.payloadSize == 0) {
 			_sock->recv(reinterpret_cast<char*>(ResFileUpload), sizeof(ResponseFileUpload));
 			if (ResFileUpload->payload.crc != crc) {
@@ -342,6 +342,7 @@ bool Client::uploadFile() {
 		}
 		else {
 			_sock->send(reinterpret_cast<char*>(fileUpload), sizeof(RequestFileUpload));
+			memset(&fileUpload->payload.encrypteDataPacket, '\0', 742);
 		}
 	}
 	if (retries == MAX_RETRIES) {
