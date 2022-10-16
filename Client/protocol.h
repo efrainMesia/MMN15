@@ -19,7 +19,7 @@ constexpr size_t SYMMETRIC_KEY_SIZE = 16;
 constexpr size_t ENCRYPTED_DATA = 128;
 constexpr size_t CRC_SIZE = 32;
 constexpr size_t DATA_PACKET = 64;
-constexpr size_t FILE_METADATA = 256;
+constexpr size_t FILE_METADATA = 255;
 
 
 enum EnumRequestCode {
@@ -102,7 +102,7 @@ struct CRCKey {
 struct FileDataPacket {
     uint32_t encryptedFileSize;
     char filename[FILE_METADATA];
-    char encrypteDataPacket[FILE_METADATA];
+    char encrypteDataPacket[742];
     FileDataPacket() : encryptedFileSize(INIT_VAL), filename{ INIT_VAL }, encrypteDataPacket{ INIT_VAL } {}
 };
 
