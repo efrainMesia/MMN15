@@ -74,7 +74,8 @@ uint32_t FileHandler::readByChunks(char* dest,const size_t bytes) const
 		return 0;
 	try
 	{
-		uint32_t extracted = _inFileStream->read(dest,bytes).gcount();
+		_inFileStream->read(dest, bytes);
+		uint32_t extracted = _inFileStream->gcount();
 		return extracted;
 	}
 	catch (...)
