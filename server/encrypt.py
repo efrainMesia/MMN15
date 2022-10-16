@@ -50,11 +50,14 @@ class Encryptor:
             ) as out_file:
                 iv = b"\0" * 16
                 cipher = AES.new(self.aes_key, AES.MODE_CBC, iv)
-                chunk = cipher.decrypt(in_file.read(1024 * AES.block_size))
-                while len(chunk) != 0:
-                    chunk = self.unpad(chunk)
-                    out_file.write(chunk)
-                    chunk = cipher.decrypt(in_file.read(1024 * AES.block_size))
+                ciphertext = in_file.read()
+                plaintext = cipher.decrypt(ciphertext)
+                out_file.write(self.unpad(plaintext.rstrip(b'\0')))
+                #chunk = cipher.decrypt(in_file.read(1024 * AES.block_size))
+                #while len(chunk) != 0:
+                #    #chunk = self.unpad(chunk)
+                #    out_file.write(chunk)
+                #    chunk = cipher.decrypt(in_file.read(1024 * AES.block_size))
             in_file.close()
             out_file.close()
             return True
@@ -62,7 +65,7 @@ class Encryptor:
             self.logger.error(f"something went wrong :{e}")
         return False
 
-    def encrypt_with_public_key(self, message):
+    def encrypt_with_public_key(self, message:bytes) -> bytes:
         rsa_key = RSA.import_key(self.public_key)
         message_padded = self.pad(message)
         encryptor = PKCS1_OAEP.new(rsa_key)
