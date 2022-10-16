@@ -9,9 +9,9 @@ PAYLOAD_SIZE = 2
 HEADER_SIZE = 23  # Not including the UUID
 SYMM_KEY_SIZE = 16
 NAME_SIZE = 127
-FILE_NAME_MAX_SIZE = 256  # File name to bits
+FILE_NAME_MAX_SIZE = 255  # File name to bits
 FILE_LENGTH_SIZE = 1  # Length of filename in bytes
-FILE_MAX_DATA_PACKET = 256
+FILE_MAX_DATA_PACKET = 255
 FILE_PACKET_SIZE = 1
 KEY_SIZE = 160  # Convert 160 bytes to bits
 CRC_SIZE = 4
@@ -24,8 +24,7 @@ FORMAT_REQUEST_HEADER = f"<{UUID_SIZE}sBHI"
 FORMAT_REG_REQUEST = f"<{NAME_SIZE}s"
 # TODO: ADD format for key_pair
 
-# L- encrypted File Size, 256s - filename, 255s-DataPacket
-FORMAT_FILE_UPLOAD_REQUEST = f"<L{FILE_NAME_MAX_SIZE}s{FILE_MAX_DATA_PACKET}s"
+
 
 MAX_RETRIES = 3
 
@@ -38,7 +37,6 @@ class EnumRequestCode(Enum):
     CRC_AGAIN = 1105
     CRC_FAILED = 1106
 
-
 class EnumResponseCode(Enum):
     RESPONSE_REG = 2100
     RESPONSE_PAIRING = 2102
@@ -46,13 +44,19 @@ class EnumResponseCode(Enum):
     RESPONSE_OK = 2104
     RESPONSE_ERROR = 2005
 
-
 class RequestHeader:
     def __init__(self):
         self.uuid = b""
         self.version = INIT_VAL
         self.code = INIT_VAL
         self.payload_size = INIT_VAL
+
+    def __str__(self):
+        return f"UUID: {self.uuid} , Version: {self.version}, Code: {self.code}, PayloadSize: {self.payload_size}"
+    def __eq__(self,other):
+        if not isinstance(other,RequestHeader):
+            return NotImplemented
+        return self.uuid ==other.uuid and self.version==other.version and self.code==other.code
 
     def unpack(self, data):
         """Little Endian unpack Request Header
@@ -182,20 +186,30 @@ class FileUploadRequest:
             data (bin str): data packet to unpack
         """
         try:
-            print(f"****** Unpacking file request ******")
-            print(data)
+
+            # L- encrypted File Size, 256s - filename, 255s-DataPacket
+            format_file_upload_request = f"<L{FILE_NAME_MAX_SIZE}s{742}s"
+            max_data = 4 + FILE_NAME_MAX_SIZE+self.header.payload_size
+            print(self.header)
             payload = data[HEADER_SIZE:]
             (
                 self.encrypted_file_size,
                 self.filename,
                 self.encrypted_data_packet,
-            ) = struct.unpack(FORMAT_FILE_UPLOAD_REQUEST, payload)
+            ) = struct.unpack(format_file_upload_request, payload)
+            print(f"Len of data -> {len(data)}")
+            print(f"encrypted file size -> {self.encrypted_file_size}")
+            print(f"file_name -> {self.filename}")
+            print(f"encrypted data -> {self.encrypted_data_packet}")
             self.filename = str(self.filename.partition(b"\0")[0].decode("utf-8"))
             self.encrypted_data_packet = self.encrypted_data_packet[
                 : self.header.payload_size
             ]
             return True
-        except:
+        except Exception as e:
+            print(payload)
+            print(len(payload))
+            print(e)
             print("Exception in FileUploadRequest")
             self.filename_length = INIT_VAL
             self.file_size = INIT_VAL
